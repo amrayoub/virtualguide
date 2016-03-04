@@ -1,0 +1,9 @@
+{
+	"header_color": "#387ef5",
+	"result_limit": "15",
+	"fallbacks": "{u'*': u'pt-br', u'en': u'en-us', u'ja': u'en-us', u'pt': u'pt-br'}",
+	"bgcolor": "#8a673a,#2b17b,#d9cfb8",
+	"name": "virtualrest",
+	"font_color": "#ffffff",
+	"server_address": "http://192.168.20.101:5000"
+}

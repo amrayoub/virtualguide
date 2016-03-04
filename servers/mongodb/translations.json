@@ -1,0 +1,114 @@
+{
+	"isocode": "en-us",
+	"START_TAB": {
+		"TAB_TITLE": "Start",
+		"TITLE": "Start",
+		"AVATAR_HEADER": "Sample Musem",
+		"AVATAR_BODY": "Sample Museum",
+		"TEXT_HEADER": "Sample Musem",
+		"TEXT_BODY": "Presents: Sample exihibition."
+	},
+	"SCAN_TAB": {
+		"TAB_TITLE": "Scan",
+		"TITLE": "Scan QR Code",
+		"BODY": "Click 'Start Scan' button and point your device to QR Code or insert the code on search box below to retrieve information about an object.",
+		"BUTTON_SCAN": "Start Scan",
+		"UNKNOW_CODE": "Unknow code",
+		"TRY_AGAIN": "Please, try again",
+		"SEARCH": "Search"
+	},
+	"SEARCH_RESULT": {
+		"VOTES": "",
+		"TITLE": "Detail",
+		"VIEWS": ""
+	},
+	"SUGGESTION_TAB": {
+		"TAB_TITLE": "Suggestions",
+		"TITLE": "Suggestions"
+	},
+	"HISTORY_TAB": {
+		"TAB_TITLE": "History",
+		"TITLE": "History"
+	},
+	"ABOUT_TAB": {
+		"BODY": "",
+		"TAB_TITLE": "About Musem",
+		"TITLE": "About Musem"
+	},
+	"LANGUAGE_TAB": {
+		"TAB_TITLE": "Choose language",
+		"TITLE": "Choose your language",
+		"LANGUAGE": "Language",
+		"VARIANT": "Region"
+	},
+	"MAIN": {
+		"SERVER_DETECTED": "Trusted provider detected!",
+		"NAVIGATION": "Navigation",
+		"CONFIGURATIONS": "Configurations",
+		"SETUP": "Setup trustee",
+		"MENU": "Menu",
+		"PULL_TO_REFRESH": "Pull to refresh",
+		"CONFIRM": "Confirm",
+		"CANCEL": "Cancel",
+		"OK": "Ok",
+		"EXIT": "Exit",
+		"ABOUT_APP": "Sobre o aplicativo"
+	}
+}
+{
+	"isocode": "pt-br",
+	"START_TAB": {
+		"AVATAR_HEADER": "Exposição de Móveis",
+		"TITLE": "Início",
+		"TAB_TITLE": "Início",
+		"TEXT_HEADER": "Exposição de demonstração",
+		"TEXT_BODY": "Apresenta: Exposição de móveis",
+		"AVATAR_BODY": "Virtual Guide Inc"
+	},
+	"SCAN_TAB": {
+		"TAB_TITLE": "Capturar",
+		"TITLE": "Capturar QR Code",
+		"BODY": "Pressione o botao 'Iniciar Captura' e aponte seu dispositivo para o Codigo QR ou insira o codigo na guia de pesquisa abaixo para receber informacoes sobre o objeto.",
+		"BUTTON_SCAN": "Iniciar Captura",
+		"UNKNOW_CODE": "Código desconhecido",
+		"TRY_AGAIN": "Por favor, tente novamente",
+		"SEARCH": "Procurar"
+	},
+	"SEARCH_RESULT": {
+		"TITLE": "Detalhes",
+		"VIEWS": "",
+		"VOTES": ""
+	},
+	"SUGGESTION_TAB": {
+		"TAB_TITLE": "Sugestões",
+		"TITLE": "Sugestões"
+	},
+	"HISTORY_TAB": {
+		"TAB_TITLE": "Histórico",
+		"TITLE": "Histórico"
+	},
+	"ABOUT_TAB": {
+		"BODY": "",
+		"TAB_TITLE": "Sobre o Museu",
+		"TITLE": "Sobre o Museu"
+	},
+	"LANGUAGE_TAB": {
+		"TAB_TITLE": "Idioma",
+		"TITLE": "Escolha seu idioma",
+		"LANGUAGE": "Idioma",
+		"VARIANT": "Região"
+	},
+	"MAIN": {
+		"SERVER_DETECTED": "Provedor confiável detectado!",
+		"NAVIGATION": "Navegação",
+		"CONFIGURATIONS": "Configurações",
+		"SETUP": "Configurar confiança",
+		"MENU": "Menu",
+		"PULL_TO_REFRESH": "Puxe para atualizar",
+		"CONFIRM": "Confirmar",
+		"CANCEL": "Cancelar",
+		"OK": "Ok",
+		"EXIT": "Sair",
+		"ABOUT_APP": "Sobre o aplicativo"
+	}
+}

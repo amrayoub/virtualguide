@@ -1,0 +1,21 @@
+{
+	"id": "0000000001",
+	"views": 0,
+	"votes": 0,
+	"translations": [
+		{
+			"isocode": "pt-br",
+			"audio": false,
+			"video": false,
+			"title": "Nome: Cama moderna",
+			"text": "Esta é uma obra que mostra um texo bem longo, cheio de bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla "
+		},
+		{
+			"isocode": "en-us",
+			"audio": false,
+			"video": false,
+			"title": "Name: Modern bed",
+			"text": "This work shows a very long text with a lot of bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla "
+		}
+	]
+}
