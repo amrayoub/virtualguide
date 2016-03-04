@@ -1,0 +1,86 @@
+<!--
+Create tabs with an icon and label, using the tabs-positive style.
+Each tab's child <ion-nav-view> directive will have its own
+navigation history that also transitions its views in and out.
+-->
+<ion-side-menus enable-menu-with-back-views="false">
+  <ion-side-menu-content>
+    <ion-nav-bar class="header-color">
+      <ion-nav-back-button>
+      </ion-nav-back-button>
+      <ion-nav-buttons side="left">
+        <button ng-controller="ButtonsCtrl" ng-hide="hidebutton()" class="button button-icon button-clear ion-navicon" menu-toggle="left">
+        </button>
+      </ion-nav-buttons>
+      <ion-nav-buttons side="right">
+        <a class="button button-light icon ion-information" ui-sref="tab.about_app"></a>
+      </ion-nav-buttons>
+    </ion-nav-bar>
+
+  <!-- TABS -->
+    <ion-tabs class="tabs-icon-top header-color {{$root.hideTabs}}">
+
+    <!-- Setup Tab -->
+    <ion-tab title="Setup" ui-sref="tab.setup" hidden="true">
+      <ion-nav-view name="tab-setup"></ion-nav-view>
+    </ion-tab>
+
+    <!-- Dashboard Tab -->
+    <ion-tab title="{{'START_TAB.TAB_TITLE' | translate}}" icon-off="ion-ios-home-outline" icon-on="ion-ios-home" ui-sref="tab.dash">
+      <ion-nav-view name="tab-dash"></ion-nav-view>
+    </ion-tab>
+
+    <!-- Scan Tab -->
+    <ion-tab title="{{'SCAN_TAB.TAB_TITLE' | translate}}" icon-off="ion-ios-barcode-outline" icon-on="ion-ios-barcode" ui-sref="tab.scan">
+      <ion-nav-view name="tab-scan"></ion-nav-view>
+    </ion-tab>
+
+    <!-- Suggestions Tab -->
+    <ion-tab title="{{'SUGGESTION_TAB.TAB_TITLE' | translate}}" icon-off="ion-ios-heart-outline" icon-on="ion-ios-heart" ui-sref="tab.suggestions">
+      <ion-nav-view name="tab-suggestions"></ion-nav-view>
+    </ion-tab>
+
+    <!-- About Tab -->
+    <ion-tab title="{{'ABOUT_TAB.TAB_TITLE' | translate}}" icon-off="ion-ios-information-outline" icon-on="ion-ios-information" ui-sref="tab.about">
+      <ion-nav-view name="tab-about"></ion-nav-view>
+    </ion-tab>
+
+    <!-- About Application Tab -->
+    <ion-tab title="{{'MAIN.ABOUT_APP' | translate}}" ui-sref="tab.about_app" hidden="true">
+      <ion-nav-view name="tab-about-app"></ion-nav-view>
+    </ion-tab>
+
+    <!-- History Tab -->
+    <ion-tab title="{{'HISTORY_TAB.TAB_TITLE' | translate}}" icon-off="ion-ios-bookmarks-outline" icon-on="ion-ios-bookmarks" ui-sref="tab.userhistory" hidden="true">
+      <ion-nav-view name="tab-userhistory"></ion-nav-view>
+    </ion-tab>
+
+    <!-- Language Tab -->
+    <ion-tab title="{{'LANGUAGE_TAB.TAB_TITLE' | translate}}" icon-off="ion-ios-chatboxes-outline" icon-on="ion-ios-chatboxes" ui-sref="tab.languages" hidden="true">
+      <ion-nav-view name="tab-languages"></ion-nav-view>
+    </ion-tab>
+  <!-- End Tabs -->
+  </ion-tabs>
+  </ion-side-menu-content>
+
+  <ion-side-menu side="left">
+    <ion-header-bar align-title="left" class="header-color">
+      <h1 class="title">{{'MAIN.MENU' | translate}}</h1>
+    </ion-header-bar>
+    <<ion-content>
+      <ion-list>
+        <ion-item class="item item-divider"><b>{{'MAIN.NAVIGATION' | translate}}</b></ion-item>
+        <ion-item menu-close ui-sref="tab.dash">{{'START_TAB.TAB_TITLE' | translate}}</ion-item>
+        <ion-item menu-close ui-sref="tab.scan">{{'SCAN_TAB.TAB_TITLE' | translate}}</ion-item>
+        <ion-item menu-close ui-sref="tab.suggestions">{{'SUGGESTION_TAB.TAB_TITLE' | translate}}</ion-item>
+        <ion-item menu-close ui-sref="tab.userhistory">{{'HISTORY_TAB.TAB_TITLE' | translate}}</ion-item>
+        <ion-item menu-close ui-sref="tab.about">{{'ABOUT_TAB.TAB_TITLE' | translate}}</ion-item>
+        <ion-item menu-close ui-sref="tab.about_app">{{'MAIN.ABOUT_APP' | translate}}</ion-item>
+        <ion-item class="item item-divider"><b>{{'MAIN.CONFIGURATIONS' | translate}}</b></ion-item>
+        <ion-item menu-close ui-sref="tab.languages">{{'LANGUAGE_TAB.TAB_TITLE' | translate}}</ion-item>
+        <ion-item menu-close ng-controller="ExitCtrl" ng-click="ExitApp()" href="#"><b>{{'MAIN.EXIT' | translate}}</b></ion-item>
+      </ion-list>
+    </ion-content>
+  </ion-side-menu>
+
+</ion-side-menus>

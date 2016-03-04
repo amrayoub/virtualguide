@@ -1,0 +1,15 @@
+<ion-view view-title="{{'LANGUAGE_TAB.TITLE' | translate}}">
+  <ion-content class="padding">
+    <div class="list card">
+      <div class="item item-body">
+        <img ng-src="{{restserver}}/flags/{{language.locale}}.png" style="width: 64px; height: 64px">
+        <h2>{{'LANGUAGE_TAB.LANGUAGE' | translate}}: {{language.name}}</h2>
+        <h2>{{'LANGUAGE_TAB.VARIANT' | translate}}: {{language.variant}}</h2>
+        <div class="button-bar">
+          <a class="button button-balanced" ng-controller="ChangeLanguageCtrl" ng-click="changeLanguage('{{language.code}}-{{language.locale}}')" href="#/tab/languages">{{'MAIN.CONFIRM' | translate}}</a>
+          <a class="button button-assertive" href="#/tab/languages">{{'MAIN.CANCEL' | translate}}</a>
+        </div>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

@@ -1,0 +1,10 @@
+<ion-view cache-view="false" view-title="{{'HISTORY_TAB.TITLE' | translate}}">
+  <ion-content>
+    <ion-refresher pulling-text="{{'MAIN.PULL_TO_REFRESH' | translate}}" on-refresh="doRefresh()"></ion-refresher>
+    <div class="list">
+      <a class="item item-thumbnail-left" ng-repeat="result in userhistory track by $index" type="item-text-wrap" href="#/tab/scans/{{result}}?type=qrcode">
+        <img ng-src="{{restserver}}/thumbs/{{result}}.png">
+        <h2>ID: {{result}}</h2>
+      </a>
+  </div>
+</ion-view>

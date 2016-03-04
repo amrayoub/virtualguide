@@ -1,0 +1,52 @@
+<ion-view view-title="{{'SEARCH_RESULT.TITLE' | translate}}">
+  <ion-content class="padding">
+    <div class="list">
+      <div ng-if="barcode.length > 1">
+        <a class="item item-thumbnail-left" ng-repeat="result in barcode" type="item-text-wrap" href="#/tab/scans/{{result.id}}?type=qrcode">
+          <img ng-src="{{restserver}}/thumbs/{{result.id}}.png">
+          <h2>{{result.title}}</h2>
+          <p>{{result.text}}</p>
+        </a>
+      </div>
+      <div ng-if="barcode.length == 1">
+        <div class="list card" ng-repeat="result in barcode" type="item-text-wrap">
+          <div class="item item-body">
+            <img class="padding full-image" src="{{restserver}}/images/{{result.id}}.png">
+            <div class="row">
+              <div class="col" align="center">
+                <button class="button icon-left ion-eye">{{'SEARCH_RESULT.VIEWS' | translate}} {{result.views}}</button>
+              </div>
+              <div class="col" align="center">
+              <button class="button icon-left icon {{iconheart}}"
+                ng-controller="VoteCtrl"
+                ng-click="vote(result.id)">{{'SEARCH_RESULT.VOTES' | translate}} {{result.votes}}
+              </button>
+              </div>
+            </div>
+            <h2>{{result.title}}</h2>
+            <p>{{result.text}}</p>
+            <!-- Media block -->
+            <div ng-if="result.audio">
+              <audio id="audio" ng-src="{{trustSrc(media.audio)}}" controls="controls" preload="metadata">
+                Your device does not support the audio tag.
+              </audio>
+              <script language="JavaScript">
+                window.onbeforeunload = function (event) {
+                  document.getElementById('audio').pause();
+                  document.getElementById('audio').src = '';
+                }
+              </script>
+            </div>
+            <div ng-if="result.video">
+              <video id="video" width="320" height="240" controls="controls" preload="metadata">
+                <source ng-src="{{trustSrc(media.video)}}">
+                Your device does not support the video tag.
+              </video>
+            </div>
+            <!-- Media block -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

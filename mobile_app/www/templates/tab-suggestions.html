@@ -1,0 +1,13 @@
+<ion-view cache-view="false" view-title="{{'SUGGESTION_TAB.TITLE' | translate}}">
+  <ion-content class="padding">
+    <ion-refresher pulling-text="{{'MAIN.PULL_TO_REFRESH' | translate}}" on-refresh="doRefresh()"></ion-refresher>
+    <div class="list">
+      <a class="item item-thumbnail-left" ng-repeat="result in suggestions" type="item-text-wrap" href="#/tab/scans/{{result.id}}?type=qrcode">
+        <img ng-src="{{restserver}}/thumbs/{{result.id}}.png">
+        <h2>{{result.title}}</h2>
+        <p>ID: {{result.id}}</p>
+        <p><i class="icon ion-ios-heart"> {{'SEARCH_RESULT.VOTES' | translate}} {{result.votes}}</i></p>
+      </a>
+    </div>
+  </ion-content>
+</ion-view>

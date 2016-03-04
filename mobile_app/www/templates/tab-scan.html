@@ -1,0 +1,22 @@
+<ion-view view-title="{{'SCAN_TAB.TITLE' | translate}}">
+  <ion-content class="padding">
+    <div class="card">
+      <div class="item item-text-wrap">
+        <h3>{{'SCAN_TAB.BODY' | translate}}</h3>
+      </div>
+    </div>
+    <div class="padding" align="center">
+      <a class="button icon-left ion-camera button-positive" ng-controller="BarcodeScan" on-touch="scanBarcode()"> {{'SCAN_TAB.BUTTON_SCAN' | translate}}</a>
+    </div>
+    <form ng-controller="BarcodeScan" ng-submit="searchcode()">
+      <div class="item item-input-inset">
+        <label class="item-input-wrapper">
+          <i class="icon ion-search placeholder-icon"></i>
+          <input type="text" ng-model="code" placeholder="{{'SCAN_TAB.SEARCH' | translate}}">
+          <input type="hidden" ng-model="type" value="search">
+        </label>
+        <input type="submit" class="button button-stable button-outline button-small" id="submit" value="{{'MAIN.OK' | translate}}">
+      </div>
+    </form>
+  </ion-content>
+</ion-view>

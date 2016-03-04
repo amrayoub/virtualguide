@@ -1,0 +1,11 @@
+<ion-view view-title="{{'LANGUAGE_TAB.TITLE' | translate}}">
+  <ion-content class="padding">
+    <ion-list>
+      <ion-item class="item-avatar item-icon-right" ng-repeat="language in languages" type="item-text-wrap" href="#/tab/langs/{{language.code}}-{{language.locale}}">
+        <img ng-src="{{restserver}}/flags/{{language.locale}}.png">
+        <h2>{{language.name}}</h2>
+        <p>{{language.variant}}</p>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

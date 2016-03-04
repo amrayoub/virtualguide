@@ -1,0 +1,33 @@
+<ion-view view-title="{{'START_TAB.TITLE' | translate}}">
+  <ion-content class="padding">
+    <style type="text/css">
+      .pane, .view {
+          background: url("{{restserver}}/images/background.png") no-repeat;
+          background-size: cover;
+          background-position: center center;
+      }
+      .item, .item-list {
+        background: linear-gradient({{bgcolor}});
+        background-color: linear-gradient({{bgcolor}});
+      }
+      .header-color {
+        background: linear-gradient({{headercolor}});
+        background-color: linear-gradient({{headercolor}});
+        color:  {{fontcolor}};
+      }
+    </style>
+    <div class="list card">
+      <div class="item item-avatar">
+        <img src="{{restserver}}/images/avatar.png">
+        <h2>{{'START_TAB.AVATAR_HEADER' | translate}}</h2>
+        <p>{{'START_TAB.AVATAR_BODY' | translate}}</p>
+      </div>
+
+      <div class="item item-body">
+        <img class="padding full-image" src="{{restserver}}/images/logo.png">
+        <h2 translate>{{'START_TAB.TEXT_HEADER' | translate}}</h2>
+        <p translate>{{'START_TAB.TEXT_BODY' | translate}}</p>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>
