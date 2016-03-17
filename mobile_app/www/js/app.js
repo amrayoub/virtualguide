@@ -22,29 +22,30 @@ var translations = {
   'pt': {
     'NO_SERVER': 'Não existe servidor disponível.',
     'NOUUID': 'Não foi possível determinar o UUID do dispositivo.\nTente abrir o aplicativo novamente.',
-    'SETUP_TITLE': 'Configurar Confiança',
-    'SCAN_BUTTON': 'Capturar Código de Segurança',
+    'SETUP_TITLE': 'Fazer CheckIn',
+    'SCAN_BUTTON': 'Realizar CheckIn',
     'EXIT_BUTTON': 'Sair do aplicativo',
     'NO_TRUSTED': 'Não existem servidores disponíveis.',
     'SCAN_TEXT': 'Antes de utilizar o Virtual Guide pela primeira vez,\
-     é necessário estabelecer a confiança com um provedor de conteúdo.\
-     Para estabelecer a confiança, é necessário capturar um QR Code disponibilizado\
+     é necessário realizar o checkin.\
+     Para realizar o checkin, é necessário capturar um QR Code disponibilizado\
      pelo provedor do conteúdo.',
      'POPUP_TITLE': 'Sucesso.',
      'POPUP_BODY': 'O processo ocorreu sem problemas!\n\
-     Por razoẽs de segurança, é necessário fechar e abrir o Aplicativo Virtual Guide novamente.'
+     O aplicativo será reiniciado para que as configurações sejam aplicadas.'
   },
   'en': {
     'NO_SERVER': 'No server available.',
     'NOUUID': 'Device UUID can not be determined. Please, reopen application.',
-    'SETUP_TITLE': 'Setup Trustee',
-    'SCAN_BUTTON': 'Scan Security Code',
+    'SETUP_TITLE': 'Do CheckIn',
+    'SCAN_BUTTON': 'Scan CheckIn Code',
     'EXIT_BUTTON': 'Exit application',
     'NO_TRUSTED': 'No servers available.',
-    'SCAN_TEXT': 'Scan Configuration QR Code',
+    'SCAN_TEXT': 'Before use Virtual Guide Application for first time, it\'s necessary\
+    to scan the CheckIn code first.',
     'POPUP_TITLE': 'Success.',
     'POPUP_BODY': 'The proccess works perfectly!\n\
-    For security reasons, it\'s necessary exit Virtual Guide Application and reopen it.'
+    Now, the application will be reloaded to apply new configurations.'
   }
 };
 
@@ -108,7 +109,10 @@ App.run(function($ionicPlatform, $translate, $ionicHistory, $ionicPopup, $cordov
 })
 
 App.config(function($stateProvider, $httpProvider, $urlRouterProvider, $translateProvider) {
-  $httpProvider.defaults.withCredentials = true;
+  if (ionic.Platform.isAndroid() || ionic.Platform.isIOS()) {
+    $httpProvider.defaults.withCredentials = true;
+  }
+  //PersistData.set('RestServer','http://localhost:5000');
   PersistData.set('Votes', ':');
   var RestServer = PersistData.get('RestServer');
   if (RestServer !== null) {

@@ -194,15 +194,17 @@ angular.module('starter.controllers', ['ngCordova','ui.router'])
 
   // Let's verify the last server used if it's valid or not.
   $scope.reuse = function() {
+    var hashserver = null;
     var UUID = PersistData.get('UUID');
     var Salt = randomString(8);
-    // We will generate an hash with our deviceuuid, or password and a salt.
+    // We will generate an hash with our deviceuuid, our password and a random salt.
     var localhash = md5(UUID + ':' + DevSecret + ':' + Salt);
     // Send our uuid and the salt to the server with a "verify" request.
     $http.get(RestServer + "/verify?uuid=" + UUID + '&salt=' + Salt).then(function(response) {
-      var hashserver = response.data.Result;
+      hashserver = response.data.Result;
       // Receive an hash as response
-      // Only the correct server is able to generate the correct hash.
+      // Only the owner of priv key is able to generate the correct hash.
+    }).finally(function() {
       if (localhash === hashserver) {
         // Yes! It's our trustee server!
         // Now it's safe to show it's images and text to the user!
@@ -285,7 +287,14 @@ angular.module('starter.controllers', ['ngCordova','ui.router'])
                     buttons: [{
                         text: '<b>OK</b>',
                         type: 'button-positive button-block',
-                        onTap: function(e) { ionic.Platform.exitApp(); }
+                        onTap: function(e) {
+                          if (ionic.Platform.isAndroid()) {
+                            navigator.app.loadUrl("file:///android_asset/www/index.html");
+                          } else {
+                            navigator.app.loadUrl("file:///ios_asset/www/index.html");
+                            ionic.Platform.exitApp();
+                          }
+                        }
                       }]
                 });
               } else {
@@ -330,9 +339,15 @@ angular.module('starter.controllers', ['ngCordova','ui.router'])
   });
 })
 
-.controller('ExitCtrl', function($scope) {
+.controller('ExitCtrl', function($scope, $ionicHistory) {
   $scope.ExitApp = function() {
     ionic.Platform.exitApp();
+    navigator.app.exitApp();
+  }
+  $scope.RestartApp = function() {
+    if (ionic.Platform.isAndroid()) {
+      navigator.app.loadUrl("file:///android_asset/www/index.html");
+    }
   }
 })
 
