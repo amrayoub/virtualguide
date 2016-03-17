@@ -1,8 +1,5 @@
-#!flask/bin/python
+#!pypy/bin/python
 # -*- coding: utf-8 -*-
-'''
-Author: Allan GooD
-'''
 
 import gevent
 from gevent import monkey
@@ -141,6 +138,12 @@ def to_dict(dictionary):
         resp[i] = dictionary[i]
     return resp
 
+def copy_cursor(cursor):
+    resp = []
+    for i in cursor:
+        resp.append(i)
+    return resp
+
 def genkeypair():
     from M2Crypto import RSA, BIO
     new_key = RSA.gen_key(1024,65537)
@@ -182,25 +185,29 @@ def logout():
 def languages():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
-    search_result = mongodb.db.languages.find({},sort=([('name',1),('variant',1)]))
-    return render_template('languages.html',entries=search_result)
+    search_result = mongodb.db.languages.find({}, sort=([('name',1),('variant',1)]))
+    countries = copy_cursor(mongodb.db.isocountries.find({}, {'_id': 0, 'name': 1, 'alpha2':1}, sort=([('name',1)])))
+    languages = copy_cursor(mongodb.db.isolanguages.find({}, {'_id': 0}, sort=([('English',1)])))
+    return render_template('languages.html', entries=search_result, countries=countries, languages=languages)
 
 @virtualrest.route('/change_languages',methods=['POST'])
 def change_language():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
-    if (request.form['action'] == 'delete'):
-        result = mongodb.db.languages.delete_one({'_id': ObjectId(request.form['id'])})
-        flash('Language deleted!')
-    elif (request.form['action'] == 'change'):
-        changes = to_dict(request.form)
-        del(changes['id'])
-        del(changes['action'])
-        result = mongodb.db.languages.update_one (
-                { '_id': ObjectId(request.form['id'])},
-                { '$set': changes }
-            )
-        flash('Changes saved!')
+    changes = to_dict(request.form)
+    del(changes['_id'])
+    result = mongodb.db.languages.update_one (
+            { '_id': ObjectId(request.form['_id'])},
+            { '$set': changes }
+        )
+    return redirect(url_for('languages'))
+
+@virtualrest.route('/del_languages/<_id>',methods=['GET'])
+def del_language(_id):
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    result = mongodb.db.languages.delete_one({'_id': ObjectId(_id)})
+    flash('Language deleted!')
     return redirect(url_for('languages'))
 
 @virtualrest.route('/add_language', methods=['POST'])
@@ -208,6 +215,7 @@ def add_language():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
     result = to_dict(request.form)
+    print(result)
     mongodb.db.languages.insert_one(result)
     flash('Language added!')
     return redirect(url_for('languages'))
@@ -308,7 +316,7 @@ def upload_file(filename):
     oid = fs.put(contents, content_type=file.content_type, filename=filename + '.png')
     del(contents)
     flash('File Uploaded!')
-    return redirect(url_for('main_config', _anchor='tab-images'))
+    return redirect(url_for('main_config'))
 
 @virtualrest.route('/setupcode')
 def setupcore():

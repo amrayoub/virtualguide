@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block title %}Virtual Guide{% endblock %}
+{% block content %}
+<form class="form-signin" role="form" id="login" action="" method="POST">
+  <div class="panel panel-default">
+      <div class="panel-heading">
+      <h2 class="form-signin-heading">Please sign in</h2>
+      </div>
+      <div class="panel-body">
+      <div class="form-group">
+        <label for="usr" class="sr-only">User:</label>
+        <input type="text" class="form-control" name="username" id="usr" placeholder="User name" requeired autofocus>
+        <label for="pwd" class="sr-only">Password:</label>
+        <input type="password" class="form-control" name="passwd" id="pwd" placeholder="Password" required>
+      </div>
+      <input type="submit" value="Login" class="btn btn-primary btn-block">
+    </div>
+  </div>
+</form>
+{% endblock %}

@@ -1,21 +1,154 @@
 {
+	"_id": {
+		"$oid": "56cb761fb067d6fce0b29f7c"
+	},
 	"id": "0000000001",
-	"views": 0,
-	"votes": 0,
+	"views": 83,
+	"votes": 17,
 	"translations": [
 		{
 			"isocode": "pt-br",
-			"audio": false,
-			"video": false,
-			"title": "Nome: Cama moderna",
+			"audio": true,
+			"video": true,
+			"title": "Nome: O menino e o monstro",
 			"text": "Esta é uma obra que mostra um texo bem longo, cheio de bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla "
 		},
 		{
 			"isocode": "en-us",
-			"audio": false,
+			"audio": true,
 			"video": false,
-			"title": "Name: Modern bed",
-			"text": "This work shows a very long text with a lot of bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla "
+			"title": "Name: The boy and the monster",
+			"text": "That's works shows a very long text with a lot of bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla "
 		}
 	]
+}
+{
+	"_id": {
+		"$oid": "56cf92c0fb5d1b36c23e4d54"
+	},
+	"votes": 3,
+	"video": false,
+	"views": 5,
+	"audio": false,
+	"translations": [
+		{
+			"text": "Esta oba bla bla bla bla bla bla bla bla bla bla bla ",
+			"video": false,
+			"isocode": "pt-br",
+			"audio": false,
+			"title": "Nome: O menino peixe"
+		},
+		{
+			"text": "This work bla bla bla bla bla bla ",
+			"video": false,
+			"isocode": "en-us",
+			"audio": false,
+			"title": "Name: Fish boy"
+		}
+	],
+	"id": "0000000002"
+}
+{
+	"_id": {
+		"$oid": "56cf92c3fb5d1b36c23e4d55"
+	},
+	"votes": 2,
+	"video": false,
+	"views": 3,
+	"audio": false,
+	"translations": [
+		{
+			"text": "This work bla bla bla bla bla bla bla ",
+			"video": false,
+			"isocode": "en-us",
+			"audio": false,
+			"title": "Name: Fur Girl"
+		},
+		{
+			"text": "Esta obra bla bla bla bla bla bla ",
+			"video": false,
+			"isocode": "pt-br",
+			"audio": false,
+			"title": "Nome: Menina peluda"
+		}
+	],
+	"id": "0000000003"
+}
+{
+	"_id": {
+		"$oid": "56cf9301fb5d1b36c23e4d5e"
+	},
+	"votes": 8,
+	"video": false,
+	"views": 5,
+	"audio": false,
+	"translations": [
+		{
+			"text": "This is the big mother, bla bla bla bla bla bla ",
+			"video": false,
+			"isocode": "en-us",
+			"audio": false,
+			"title": "Name: Big Mother"
+		},
+		{
+			"text": "Esta é a grande mãe, bla bla bla bla bla bla ",
+			"video": false,
+			"isocode": "pt-br",
+			"audio": false,
+			"title": "Name: A grande mãe"
+		}
+	],
+	"id": "0000000004"
+}
+{
+	"_id": {
+		"$oid": "56cf9304fb5d1b36c23e4d5f"
+	},
+	"votes": 3,
+	"video": false,
+	"views": 1,
+	"audio": false,
+	"translations": [
+		{
+			"text": "English bla bla bla bla bla ",
+			"video": false,
+			"isocode": "en-us",
+			"audio": false,
+			"title": "Name: The monkey boy"
+		},
+		{
+			"text": "Português bla bla bla bla ",
+			"video": false,
+			"isocode": "pt-br",
+			"audio": false,
+			"title": "Nome: O menino macaco"
+		}
+	],
+	"id": "0000000005"
+}
+{
+	"_id": {
+		"$oid": "56cf9320fb5d1b36c23e4d68"
+	},
+	"votes": 0,
+	"video": false,
+	"views": 3,
+	"audio": false,
+	"translations": [
+		{
+			"text": "English bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla ",
+			"video": false,
+			"isocode": "en-us",
+			"audio": false,
+			"title": "Name: The pig baby"
+		},
+		{
+			"text": "Português bla bla bla bla bla bla bla bla bla bla bla bla ",
+			"video": false,
+			"isocode": "pt-br",
+			"audio": false,
+			"title": "Nome: O menino porco"
+		}
+	],
+	"id": "0000000006"
 }

@@ -1,0 +1,139 @@
+{% extends "layout.html" %}
+{% block header %}
+  <link rel="stylesheet" media="screen" type="text/css" href="/static/bootstrap-colorpicker.min.css" />
+  <script type="text/javascript" src="/static/bootstrap-colorpicker.min.js"></script>
+{% endblock %}
+{% block title %}Main Configuration{% endblock %}
+{% block content %}
+
+<div class="panel panel-default">
+  <ul class="nav nav-tabs" role="tablist">
+    <li><a href="#tab-config" aria-controls="tab-config" role="tab" data-toggle="tab">Configurations</a></li>
+    <li><a href="#tab-images" aria-controls="tab-images" role="tab" data-toggle="tab">Images</a></li>
+    <li><a href="#tab-certificates" aria-controls="tab-certificates" role="tab" data-toggle="tab">Certificates</a></li>
+    <li><a href="#tab-qrcode" aria-controls="tab-qrcode" role="tab" data-toggle="tab">Setup Code</a></li>
+  </ul>
+
+  <div class="tab-content">
+
+    <div role="tabpanel" class="tab-pane fade in active" id="tab-config">
+      <div class="row">
+        <div class="col-md-4">
+          <form id="configurations" class="form-configs" method="POST" action="" role="form">
+            {% for config in configs[0] %}
+              <div class="input-group">
+                <span class="input-group-addon" id="addon-{{config}}">{{config}}</span>
+                <input type="text" class="form-control" id="{{config}}" aria-describedby="addon-{{config}}" name="{{config}}" value="{{configs[0][config]}}">
+                <input type="hidden" name="action" value="configurations">
+              </div>
+            {% endfor %}
+            <script type="text/javascript">
+              $(function(){
+                $('#font_color, #header_color').colorpicker();
+              });
+            </script>
+            <input type="submit" class="btn btn-primary" value="Save">
+          </form>
+        </div>
+        <div class="col-md-4">
+          <table style="width: 300px" class="table">
+            <thread>
+              <tr>
+                <td>Application Preview</td>
+              </tr>
+              <tr bgcolor="{{configs[0]['header_color']}}">
+                <td align="center"><b><font color="{{configs[0]['font_color']}}">Header_Color / Font_Color</b></td>
+              </tr>
+              <tr>
+                <td height="300" background="/images/background.png">
+                  <div class="well well-sm">
+                    <img width="32" height="32" src="/images/avatar.png" class="img-circle">
+                    Avatar Text
+                  </div>
+                  <div class="well well-sm">
+                    <img src="/images/logo.png">
+                    <p>Presentation Text</p>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td bgcolor="#ccc" align="center">Application Footer</td>
+              </tr>
+            </thread>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div role="tabpanel" class="tab-pane fade" id="tab-images">
+      <div class="row">
+        {% for name in images %}
+        <div class="col-sm-6 col-md-4">
+          <div class="thumbnail">
+            {% if images[name] %}
+            <img class="img-rounded" src="/images/{{name}}.png" alt="{{name}}">
+            {% else %}
+            No Image
+            {% endif %}
+            <div class="caption">
+              {% if name == "logo" %}
+              <h3>Exhibition Logo</h3>
+              <p>This is the biggest image showed at start page.</p>
+              {% elif name == "avatar"%}
+              <h3>Avatar image</h3>
+              <p>This is the tiniest image showed at start page. Usually used to show your company's logo.</p>
+              {% elif name == "background"%}
+              <h3>Background Image</h3>
+              <p>This is the background image showed on every page. Use a beautiful image to cause imapact.</p>
+              {% endif %}
+              <form role="form" action="{{url_for('upload_file',filename=name)}}" method="post" enctype="multipart/form-data">
+                <input id="uploadFile-{{name}}" placeholder="Choose File" disabled="disabled" />
+                <div class="fileUpload btn btn-primary">
+                  <span>Browse</span>
+                  <input id="uploadBtn-{{name}}" type="file" name="file" class="upload" />
+                </div>
+                <script type="text/javascript">
+                document.getElementById("uploadBtn-{{name}}").onchange = function () {
+                  document.getElementById("uploadFile-{{name}}").value = this.value;
+                };
+                </script>
+                <input class="btn btn-primary" type="submit" value="Save">
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+      <div role="tabpanel" class="tab-pane fade" id="tab-certificates">
+        <form action="" method="POST" id="genkeypairs">
+          <input type="hidden" name="action" value="genkeys">
+          <p>Public key:<br>
+          <pre style="max-width: 550px;">{{certs.pubkey}}</pre>
+          <input class="btn btn-primary" type="submit" value="Generate new key pairs">
+        </form>
+      </div>
+
+      <div role="tabpanel" class="tab-pane fade" id="tab-qrcode">
+        <div class="row">
+          <div class="col-sm-6 col-md-4">
+            <div class="thumbnail">
+              <img src="http://127.0.0.1:8080/setupcode">
+              <div class="caption">
+                <h3>This is the Check in Code</h3>
+                <p>Point your device to this code to configure your application.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  //var hash = document.location.hash;
+  $('#tab-qrcode').tab('show');
+</script>
+
+{% endblock %}

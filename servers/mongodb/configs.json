@@ -1,9 +1,12 @@
 {
-	"header_color": "#387ef5",
+	"_id": {
+		"$oid": "56c862281f756b71febd721e"
+	},
+	"header_color": "#e6e600,#ffff00",
 	"result_limit": "15",
 	"fallbacks": "{u'*': u'pt-br', u'en': u'en-us', u'ja': u'en-us', u'pt': u'pt-br'}",
-	"bgcolor": "#8a673a,#2b17b,#d9cfb8",
+	"bgcolor": "#48505d,#dfceaa,#9ebbd3",
 	"name": "virtualrest",
-	"font_color": "#ffffff",
-	"server_address": "http://192.168.20.101:5000"
+	"font_color": "#0000ff",
+	"server_address": "http://192.168.43.11:5000"
 }

@@ -1,0 +1,143 @@
+{% extends "layout.html" %}
+
+{% block header %}
+  <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='select2.min.css')}}">
+  <script src="{{url_for('static',filename='select2.min.js')}}"></script>
+{% endblock %}
+
+{% block title %}Languages{% endblock %}
+{% block content %}
+<div class="panel panel-default">
+
+  <!-- New Language Form -->
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLanguage">
+    Add new translation
+  </button>
+
+  <!-- Modal -->
+  <div class="modal fade" id="addLanguage" role="dialog" aria-labelledby="Add Language">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="Add Language">Add new translation</h4>
+        </div>
+        <div class="modal-body">
+          <form role="addnewlang" action="{{ url_for('add_language') }}" method="POST">
+            <li class="list-group-item">
+              <label>Country Flag</label>
+              <img src="/flags/af.png" id="flag-new">
+              <div class="input-group" style="max-width: 400px;">
+                <label class="input-group-addon">Displayed Country Name</label>
+                <input type="text" class="form-control" name="variant" placeholder="Country Display Name">
+              </div>
+              <div class="input-group" style="max-width: 400px;">
+                <label class="input-group-addon">Displayed Language Name</label>
+                <input type="text" class="form-control" name="name" placeholder="Language Display Name">
+              </div>
+            <!-- Select for Country Codes ISO 3361-1 -->
+            <label>Country Name</label>
+            <select
+              name="locale "
+              class="js-example-basic-single"
+              id="country"
+              onchange="changeFlag('country','flag-new')">
+            {% for country in countries %}
+              <option value="{{country.alpha2 | lower}}">{{country.name}}</option>
+            {% endfor %}
+            </select>
+            <br>
+            <!-- Select for Languages Codes ISO 639-1 -->
+            <label>Language Name</label>
+            <select
+              name="code"
+              class="js-example-basic-single"
+              id="language">
+            {% for language in languages %}
+              <option value="{{language.alpha2}}">{{language.English}}</option>
+            {% endfor %}
+            </select>
+            <div class="modal-footer">
+              <div class="btn btn-group">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                <input type="submit" class="btn btn-success" value="Save changes">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configured Languages -->
+  <ul class="list-group">
+    {% for entry in entries %}
+    <form role="form" action="{{ url_for('change_language') }}" method="POST">
+      <input type="hidden" name="_id" value="{{entry._id}}">
+      <li class="list-group-item">
+        <label>Country Flag</label>
+        <img src="/flags/{{entry.locale}}.png" id="flag-{{entry._id}}">
+        <div class="input-group" style="max-width: 400px;">
+          <label class="input-group-addon">Displayed Country Name</label>
+          <input type="text" class="form-control" name="variant" value="{{entry.variant}}">
+        </div>
+        <div class="input-group" style="max-width: 400px;">
+          <label class="input-group-addon">Displayed Language Name</label>
+          <input type="text" class="form-control" name="name" value="{{entry.name}}">
+        </div>
+
+        <!-- Select for Country Codes ISO 3361-1 -->
+        <label>Country Name</label>
+        <select
+          style="max-width: 200px;"
+          class="js-example-basic-single"
+          id="{{entry._id}}"
+          name="name"
+          onchange="changeFlag('{{entry._id}}','flag-{{entry._id}}')">
+        {% for country in countries %}
+        {% if country.alpha2 | lower == entry.locale %}
+          <option value="{{country.alpha2 | lower}}" selected="selected">{{country.name}}</option>
+        {% else %}
+          <option value="{{country.alpha2 | lower}}">{{country.name}}</option>
+        {% endif %}
+        {% endfor %}
+        </select>
+        <br>
+
+        <!-- Select for Languages Codes ISO 639-1 -->
+        <label>Language Name</label>
+        <select
+          style="max-width: 200px;"
+          class="js-example-basic-single"
+          id="{{entry._id}}"
+          name="code">
+        {% for language in languages %}
+        {% if language.alpha2 | lower == entry.code %}
+          <option value="{{language.alpha2 | lower}}" selected="selected">{{language.English}}</option>
+        {% else %}
+          <option value="{{language.alpha2 | lower}}">{{language.English}}</option>
+        {% endif %}
+        {% endfor %}
+        </select><br>
+        <div class="btn btn-group">
+          <input type="submit" class="btn btn-success" value="Save">
+          <a class="btn btn-danger" href="{{ url_for('del_language',_id=entry._id) }}">Remove</a>
+        </div>
+      </li>
+    </form>
+    {% endfor %}
+  </ul>
+
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  $(".js-example-basic-single").select2();
+});
+
+function changeFlag(selectid,flagid) {
+  var country = $('#' + selectid + ' option:selected').val();
+  $('#' + flagid ).attr('src','/flags/' + country + '.png');
+}
+</script>
+{% endblock %}

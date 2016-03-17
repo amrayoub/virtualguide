@@ -1,105 +1,70 @@
-html {
-  font-family: "Lucida Sans", sans-serif;
+body {
+  padding-top: 70px;
+  padding-bottom: 40px;
+  padding-left: 20px;
+  padding-right: 20px;
+  background-color: #fff;
+  background: url("/static/background.jpg") no-repeat;
+  background-size: cover;
+  background-position: center center;
 }
 
-.header {
-  width: 100%;
-  background-color: #4499cc;
-  color: #ffffff;
+.form-configs {
+  max-width: 500px;
   padding: 15px;
-  text-align: center;
+  margin: 0 auto;
 }
 
-.flash {
-  width: 100%;
-  background-color: #44aa55;
-  color: #ffffff;
+.form-signin {
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}
+
+.form-signin .form-signin-heading {
+  margin-bottom: 10px;
+  margin-top: 5px;
+}
+
+.form-signin .form-control {
+  position: relative;
+  height: auto;
+   -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+           box-sizing: border-box;
   padding: 10px;
-  text-align: center;
+  font-size: 16px;
 }
 
-.button {
-  padding: 4px 10px;
-  text-decoration: none;
-  text-align: center;
-  display: inline-block;
-  border-radius: 4px;
-  background-color: #44aa55;
-  color: #ffffff;
+.form-signin .form-control:focus {
+  z-index: 2;
 }
 
-.button:hover {
-  background-color: #0099cc;
-  color: white;
+.form-signin input[type="text"] {
+  margin-bottom: 10px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
-a, a:visited, a:active {
-  text-decoration: none;
+.form-signin input[type="password"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
-a {
-  color: #0055dd;
+.fileUpload {
+    position: relative;
+    overflow: hidden;
+    margin: 10px;
 }
-
-a:hover {
-  color: #33b5e5;
-}
-
-.navbar {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-color: #0055aa;
-}
-
-.navbar .item {
-  display: block;
-  color: white;
-  text-align: center;
-  padding: 10px 12px;
-  text-decoration: none;
-}
-
-.navbar a:hover:not(.active) {
-  background-color: #33b5e5;
-}
-
-.active {
-  background-color: #33b5e5;
-}
-
-.navbar .item {
-  float: left;
-}
-
-input, textarea {
-  border: none;
-  text-align: center;
-  background-color: #eee;
-  padding: 4px 4px;
-  display: inline-block;
-}
-
-input:focus, textarea:focus {
-  border: 2px solid #900;
-}
-
-table {
-  border-collapse: collapse;
-}
-
-table, th, td {
-  border: 1px solid black;
-  font-size: 12px;
-  text-decoration: none;
-  text-align: center;
-}
-table th {
-  color: #eee;
-  background-color: #2299cc;
-}
-
-table tr:hover {
-  background-color: #ddd;
+.fileUpload input.upload {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
 }

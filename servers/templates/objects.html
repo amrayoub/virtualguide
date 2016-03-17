@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+{% block title %}Objects{% endblock %}
+
+{% block content %}
+<div class="panel panel-default">
+  <p>
+    <a class="button" onclick="$('#add_object_div').toggle();">Add Object</a><br>
+  </p>
+  <div id="add_object_div" hidden>
+    {% set lastobj = objects | last() %}
+    {% set newid = '%010d' % (lastobj.id | int + 1) %}
+    <form id="add_object" action="{{url_for('change_object')}}" method="POST">
+      <input type="hidden" name="action" value="add_object">
+      <p>
+        Insert Object ID: <input type="text" size="10" maxlength="10" name="id" value="{{newid}}">
+        <a class="button" onclick="$('#add_object').submit();">Save</a>
+      </p>
+    </form>
+  </div>
+  <form action="" method="post">
+    <p>Search: <input name="search" size="40" type="text"></p>
+  <form>
+  <table width="98%" align="center">
+    <tr>
+      <th width="10%">Object ID</th>
+      <th width="10%">Object Image</th>
+      <th width="10%">Object QR Code</th>
+      <th width="30%">Object Titles</th>
+      <th width="10%">Object Audio</th>
+      <th width="30%">Object Video</th>
+    </tr>
+    {% for object in objects %}
+    <tr>
+      <td>
+        <p>{{object.id}}</p>
+        <p>
+          <form id="delobj_{{object._id}}" action="{{url_for('change_object')}}" method="POST">
+          <input type="hidden" name="_id" value="{{object._id}}">
+          <input type="hidden" name="action" value="del_object">
+          <p><a class="button" onclick="$('#delobj_{{object._id}}').submit();">Delete</a></p>
+          </form>
+        </p>
+      </td>
+      <td onclick="window.location.href='{{url_for('get_object',id=object.id)}}';">
+        <img src="/thumbs/{{object.id}}.png">
+      </td>
+      <td onclick="window.location.href='{{url_for('get_object',id=object.id)}}';">
+        <img src="/qrcode/{{object.id}}.svg">
+      </td>
+      <td onclick="window.location.href='{{url_for('get_object',id=object.id)}}';">
+        {% for title in object.translations %}
+        {{title.isocode}}: {{title.title}}<br>
+        {% endfor %}
+      </td>
+      <td>
+        {% for title in object.translations %}
+        {% if title.audio %}
+          {{title.isocode}}:
+          <audio src="/audios/{{title.isocode}}-{{object.id}}.mp3" controls preload="none">
+            Your browser does not support the audio tag.
+          </audio>
+        {% else %}
+          {{title.isocode}}: No Audio<br>
+        {% endif %}
+        {% endfor %}
+      </td>
+      <td>
+        {% for title in object.translations %}
+        {% if title.video %}
+          {{title.isocode}}:
+          <video width="320" height="240" controls>
+            <source src="/videos/{{title.isocode}}-{{object.id}}.ogv" type="video/ogg">
+              Your browser does not support the video tag.
+          </video>
+        {% else %}
+          {{title.isocode}}: No Video<br>
+        {% endif %}
+        {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}
