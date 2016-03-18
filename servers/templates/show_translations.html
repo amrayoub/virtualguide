@@ -1,53 +1,165 @@
 {% extends "layout.html" %}
+{% block header %}
+  <link rel="stylesheet" media="screen" type="text/css" href="/static/summernote.css">
+  <script type="text/javascript" src="/static/summernote.min.js"></script>
+{% endblock %}
 {% block title %}Translation: {{translations.isocode}}{% endblock %}
 {% block content %}
+{% if 'all' in session['rights'] or 'translations' in session['rights'] %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#ABOUT_TAB_BODY').summernote({
+      disableDragAndDrop: true,
+      toolbar: [
+        // [groupName, [list of button]]
+        ['edit', ['undo', 'redo', 'codeview']],
+        ['style', ['bold', 'italic', 'underline', 'clear']],
+        ['font', ['strikethrough', 'superscript', 'subscript']],
+        ['fontsize', ['fontsize']],
+        ['color', ['color']],
+        ['para', ['ul', 'ol', 'paragraph']],
+        ['height', ['height']],
+        ['insert', ['table','link','hr']]
+      ]
+    });
+  });
+</script>
+<div class="panel panel-default">
 
-  <div id="tabs">
-    <ul>
-      {% for tab in translations %}
-        {% if tab != 'isocode' and tab != 'MAIN' %}
-          <li><a href="#tab-{{tab}}">{{translations[tab]['TITLE']}}</a></li>
-        {% elif tab == 'MAIN' %}
-          <li><a href="#tab-{{tab}}">Main</a></li>
-        {% endif %}
-      {% endfor %}
-    </ul>
+  <ul class="nav nav-tabs" role="tablist">
     {% for tab in translations %}
       {% if tab != 'isocode' %}
-      <div id="tab-{{tab}}">
-        <form id="{{tab}}_form" action="{{url_for('change_translation',isocode=translations.isocode,tab=tab)}}" method="POST">
-          <table align="center">
-            <tr><td colspan=2><h2>{{translations[tab]['TITLE']}}</h2></td><tr>
-            <tr>
-              <th width="150">Item Name</th>
-              <th>Translation</th>
-            </tr>
-            <tr>
-            {% for item in translations[tab] %}
-              <td>{{item}}</td>
-              <td>
+    <li><a href="#tab-{{tab}}" aria-controls="tab-{{tab}}" role="tab" data-toggle="tab">{{translations[tab]['TITLE']}}</a></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+
+  <div class="tab-content">
+    {% set active = 'in active' %}
+    {% for tab in translations %}
+      {% if tab != 'isocode' %}
+    <div role="tabpanel" class="tab-pane fade {{active}}" id="tab-{{tab}}">
+      <div class="row">
+        <div class="col-md-6 col-md-offset-1">
+          <form class="form-configs" role="form" action="{{url_for('change_translation',isocode=translations.isocode,tab=tab)}}" method="POST">
+          {% for item in translations[tab] %}
+            <div class="input-group">
+              <span class="input-group-addon">{{item}}</span>
               {% if translations[tab][item]|length > 60 %}
-                <textarea name="{{item}}" cols="100%">{{translations[tab][item]}}</textarea>
+              {% set size = translations[tab][item]|length %}
+              <textarea id="{{tab}}_{{item}}" class="form-control" name="{{item}}" rows="{{size / 60}}" >{{translations[tab][item]}}</textarea>
               {% else %}
-                <input size="50" name="{{item}}" value="{{translations[tab][item]}}">
+              <input class="form-control" size="50" name="{{item}}" value="{{translations[tab][item]}}">
               {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-            <tr>
-              <td colspan=2>
-                <a class="button" onclick="$('#{{tab}}_form').submit()">Save</a>
-                <a class="button" onclick="">Reset</a>
-              </td>
-            </tr>
+            </div>
+          {% endfor %}
+            <input type="submit" class="btn btn-danger" value="Save">
+          </form>
+        </div>
+
+        <!-- Application Preview -->
+        <style type="text/css">
+          .well {
+            background: linear-gradient({{configs[0]['bgcolor']}});
+          }
+        </style>
+        <div class="col-md-4">
+          <table style="width: 300px" class="table">
+            <thread>
+              <tr>
+                <td>Application Preview</td>
+              </tr>
+              <tr bgcolor="{{configs[0]['header_color']}}">
+                <td align="center"><b><font color="{{configs[0]['font_color']}}">{{translations[tab]['TITLE']}}</b></td>
+              </tr>
+              {% if tab == "START_TAB" %}
+              <tr>
+                <td height="300" background="/images/background.png">
+                  <div class="well well-sm">
+                    <div class="row">
+                      <div class="col-md-2">
+                        <img width="32" height="32" src="/images/avatar.png" class="img-circle">
+                      </div>
+                      <div class="row">
+                        <b>{{translations[tab]['AVATAR_HEADER']}}</b><br>
+                        {{translations[tab]['AVATAR_BODY']}}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="well well-sm">
+                    <p><img src="/images/logo.png"></p>
+                    <p><b>{{translations[tab]['TEXT_HEADER']}}</b><br>
+                    {{translations[tab]['TEXT_BODY']}}</p>
+                  </div>
+                </td>
+              </tr>
+              {% elif tab == "SCAN_TAB" %}
+              <tr>
+                <td height="300" background="/images/background.png">
+                  <div class="well well-sm">
+                    {{translations[tab]['BODY']}}
+                  </div>
+                  <p>
+                    <div align="center">
+                      <button class="btn btn-primary">
+                        <span aria-hidden="true" class="glyphicon glyphicon-qrcode"></span>
+                        {{translations[tab]['BUTTON_SCAN']}}
+                      </button>
+                    </div>
+                  </p>
+                  <p>
+                    <div align="center">
+                      <input class="form-control" placeholder="{{translations[tab]['SEARCH']}}">
+                    </div>
+                  </p>
+                </td>
+              </tr>
+              {% elif tab == "SEARCH_RESULT" %}
+              <tr>
+                <td height="300" background="/images/background.png">
+                  <div class="well well-sm" align="center">
+                    <img src="/images/0000000001.png"><br>
+                    <p>Object Text</p>
+                    <button type="button" class="btn btn-default" aria-label="Left Align">
+                      <span class="glyphicon glyphicon-eye-open" aria-hidden="true"> 0</span>
+                    </button>
+                    <button type="button" class="btn btn-default" aria-label="Left Align">
+                      <span class="glyphicon glyphicon-heart" aria-hidden="true"> 0</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% elif tab == "SUGGESTION_TAB" or tab == "HISTORY_TAB" %}
+              {% for i in ['0000000001','0000000002','0000000003'] %}
+              <tr>
+                <td><img src="/thumbs/{{i}}.png"> Image Title</td>
+              </tr>
+              {% endfor %}
+              {% elif tab == "ABOUT_TAB" %}
+              <tr>
+                <td background="/images/background.png">
+                  <div class="well">
+                    {{translations[tab]['BODY'] | safe}}
+                  </div>
+                </td>
+              </tr>
+              {% endif %}
+              <tr>
+                <td bgcolor="#ccc" align="center">Application Footer</td>
+              </tr>
+            </thread>
           </table>
-        </form>
+        </div>
       </div>
+    </div>
+      {% set active = '' %}
       {% endif %}
     {% endfor %}
   </div>
-
-  <script>
-    $( "#tabs" ).tabs();
-  </script>
+</div>
+{% else %}
+<div class="alert alert-danger" align="center" style="max-width: 400px;">
+  <p>You don't have permission to view this page.</p>
+</div>
+{% endif %}
 {% endblock %}

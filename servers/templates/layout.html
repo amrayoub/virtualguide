@@ -25,20 +25,48 @@
 
 {% if session.logged_in %}
   <nav class="navbar navbar-default navbar-fixed-top">
-    <div class="navbar-header">
+    <div class="navbar-header" style="background: #eee;">
       <a class="navbar-brand" href="/">Virtual Guide Admin</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
+        {% if 'all' in session['rights'] or 'home' in session['rights'] %}
         <li><a href="/">Home</a></li>
+        {% endif %}
+
+        {% if 'all' in session['rights'] or 'main_config' in session['rights'] %}
         <li><a href="/main_config">Main Configurations</a></li>
-        <li><a href="/languages">Languages</a></li>
+        {% endif %}
+
+        {% if 'all' in session['rights'] or 'languages' in session['rights'] %}
+        <li class="dropdown">
+          <a href="/languages" class="dropdown-toggle" data-toggle="dropdown"
+            role="button" aria-haspopup="true" aria-expanded="false">
+            Languages <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="/languages"><b>All languages</b></a></li>
+            {% for language in languages %}
+            <li>
+              <a href="{{ url_for('translations',code=language.code,locale=language.locale)}}">
+                {{language.name}} - {{language.variant}}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+
+        {% if 'all' in session['rights'] or 'objects' in session['rights'] %}
         <li><a href="/objects">Objects</a></li>
+        {% endif %}
+
       </ul>
-      <ul class="nav navbar-nav navbar-right">
+      <ul class="nav navbar-nav navbar-right" style="padding-right: 30px;">
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown"
             role="button" aria-haspopup="true" aria-expanded="false">
+              <span aria-hidden="true" class="glyphicon glyphicon-user"></span>
               {{session.username}} <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">

@@ -1,10 +1,11 @@
 {% extends "layout.html" %}
 {% block header %}
-  <link rel="stylesheet" media="screen" type="text/css" href="/static/bootstrap-colorpicker.min.css" />
+  <link rel="stylesheet" media="screen" type="text/css" href="/static/bootstrap-colorpicker.min.css">
   <script type="text/javascript" src="/static/bootstrap-colorpicker.min.js"></script>
 {% endblock %}
 {% block title %}Main Configuration{% endblock %}
 {% block content %}
+{% if 'all' in session['rights'] or 'main_config' in session['rights'] %}
 
 <div class="panel panel-default">
   <ul class="nav nav-tabs" role="tablist">
@@ -17,8 +18,9 @@
   <div class="tab-content">
 
     <div role="tabpanel" class="tab-pane fade in active" id="tab-config">
+      <br>
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-4 col-md-offset-2">
           <form id="configurations" class="form-configs" method="POST" action="" role="form">
             {% for config in configs[0] %}
               <div class="input-group">
@@ -66,9 +68,10 @@
     </div>
 
     <div role="tabpanel" class="tab-pane fade" id="tab-images">
+      <br>
       <div class="row">
         {% for name in images %}
-        <div class="col-sm-6 col-md-4">
+        <div class="col-md-4">
           <div class="thumbnail">
             {% if images[name] %}
             <img class="img-rounded" src="/images/{{name}}.png" alt="{{name}}">
@@ -93,9 +96,9 @@
                   <input id="uploadBtn-{{name}}" type="file" name="file" class="upload" />
                 </div>
                 <script type="text/javascript">
-                document.getElementById("uploadBtn-{{name}}").onchange = function () {
-                  document.getElementById("uploadFile-{{name}}").value = this.value;
-                };
+                  document.getElementById("uploadBtn-{{name}}").onchange = function () {
+                    document.getElementById("uploadFile-{{name}}").value = this.value;
+                  };
                 </script>
                 <input class="btn btn-primary" type="submit" value="Save">
               </form>
@@ -107,17 +110,23 @@
     </div>
 
       <div role="tabpanel" class="tab-pane fade" id="tab-certificates">
-        <form action="" method="POST" id="genkeypairs">
-          <input type="hidden" name="action" value="genkeys">
-          <p>Public key:<br>
-          <pre style="max-width: 550px;">{{certs.pubkey}}</pre>
-          <input class="btn btn-primary" type="submit" value="Generate new key pairs">
-        </form>
+        <br>
+        <div class="row">
+          <div class="col-sm-5 col-md-offset-2">
+            <form action="" method="POST" id="genkeypairs">
+              <input type="hidden" name="action" value="genkeys">
+              <p>Public key:<br>
+              <pre>{{certs.pubkey}}</pre>
+              <input class="btn btn-primary" type="submit" value="Generate new key pairs">
+            </form>
+          </div>
+        </div>
       </div>
 
       <div role="tabpanel" class="tab-pane fade" id="tab-qrcode">
+        <br>
         <div class="row">
-          <div class="col-sm-6 col-md-4">
+          <div class="col-md-4 col-md-offset-4">
             <div class="thumbnail">
               <img src="http://127.0.0.1:8080/setupcode">
               <div class="caption">
@@ -135,5 +144,9 @@
   //var hash = document.location.hash;
   $('#tab-qrcode').tab('show');
 </script>
-
+{% else %}
+<div class="alert alert-danger" align="center" style="max-width: 400px;">
+  <p>You don't have permission to view this page.</p>
+</div>
+{% endif %}
 {% endblock %}

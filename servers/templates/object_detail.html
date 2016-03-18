@@ -2,6 +2,118 @@
 {% block title %}Object detail{% endblock %}
 
 {% block content %}
+{% if 'all' in session['rights'] or 'objects' in session['rights'] %}
+<!-- Panel -->
+<div class="panel panel-default">
+  <br>
+  <div class="row">
+    <!-- Object Image -->
+    <div class="col-md-6 col-md-offset-3">
+      <div class="list-group">
+        <!-- Object Header -->
+        <div class="list-group-item list-group-item-success">
+          Object ID: <strong>{{object.id}}</strong>
+        </div>
+        <!-- Grid for Object Image and QR Code -->
+        <div class="list-group-item">
+          <!-- Thumbnail for Object Image -->
+            <div class="row">
+              <div class="col-md-7 col-sm-4">
+                <div class="thumbnail" align="center">
+                  <p><img src="/images/{{object.id}}.png"></p>
+                  <button class="btn btn-primary" type="button">
+                    Views <span class="badge">{{object.views}}</span>
+                  </button>
+                  <button class="btn btn-primary" type="button">
+                    Votes <span class="badge">{{object.votes}}</span>
+                  </button><br>
+                  <input id="uploadFile" placeholder="Choose File" disabled="disabled" />
+                  <div class="fileUpload btn btn-primary">
+                    <span>Browse</span>
+                    <input id="uploadBtn" type="file" name="file" class="upload" />
+                  </div>
+                  <script type="text/javascript">
+                    document.getElementById("uploadBtn").onchange = function () {
+                      document.getElementById("uploadFile").value = this.value;
+                    };
+                  </script>
+                </div>
+              </div>
+              <!-- Grid for QR Code -->
+              <div class="col-md-4" >
+                <img class="img-thumbnail" src="/qrcode/{{object.id}}.svg">
+                <div class="caption" align="center">
+                  Object ID: {{object.id}}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      {% for translation in object.translations %}
+      <div class="col-md-6">
+        <!-- Object Information Group -->
+        <div class="list-group">
+          <!-- Language Header -->
+          <div class="list-group-item list-group-item-info">
+            Language: <strong>{{translation.isocode}}</strong>
+          </div>
+          <!-- Language Texts -->
+          <div class="list-group-item">
+            {{translation.title}}<br>
+            {{translation.text}}<br>
+          </div>
+          <!-- Language Audio -->
+          <div class="list-group-item">
+            Audio File:</br>
+            {% if translation.audio %}
+            <audio preload="metadata" controls="controls" src="/audios/{{translation.isocode}}-{{object.id}}.mp3">
+              Audio tag not supported
+            </audio><br>
+            {% endif %}
+            <input id="uploadAudio" placeholder="Choose File" disabled="disabled" />
+            <div class="fileUpload btn btn-primary">
+              <span>Browse</span>
+              <input id="uploadAudioBtn" type="file" name="audioFile" class="upload" />
+            </div>
+            <script type="text/javascript">
+            document.getElementById("uploadAudioBtn").onchange = function () {
+              document.getElementById("uploadAudio").value = this.value;
+            };
+            </script>
+          </div>
+          <!-- Language Video -->
+          <div class="list-group-item">
+            Video File:</br>
+            {% if translation.video %}
+            <video preload="metadata" width="300" height="220"
+            controls="controls" src="/videos/{{translation.isocode}}-{{object.id}}.ogv">
+            Video tag not supported
+          </video><br>
+          {% else %}
+          <p>No file</p>
+          {% endif %}
+          <input id="uploadVideo" placeholder="Choose File" disabled="disabled" />
+          <div class="fileUpload btn btn-primary">
+            <span>Browse</span>
+            <input id="uploadVideoBtn" type="file" name="videoFile" class="upload" />
+          </div>
+          <script type="text/javascript">
+          document.getElementById("uploadVideoBtn").onchange = function () {
+            document.getElementById("uploadVideo").value = this.value;
+          };
+          </script>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+
+{% if 1 == 2 %}
 <table width="98%" align="center">
   <tr>
     <th width="10%">Object ID</th>
@@ -200,4 +312,11 @@
     <!-- End Video Table -->
   </tr>
 </table>
+{% endif %}
+
+{% else %}
+<div class="alert alert-danger" align="center" style="max-width: 400px;">
+  <p>You don't have permission to view this page.</p>
+</div>
+{% endif %}
 {% endblock %}

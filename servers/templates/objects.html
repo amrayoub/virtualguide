@@ -2,82 +2,73 @@
 {% block title %}Objects{% endblock %}
 
 {% block content %}
+{% if 'all' in session['rights'] or 'objects' in session['rights'] %}
 <div class="panel panel-default">
-  <p>
-    <a class="button" onclick="$('#add_object_div').toggle();">Add Object</a><br>
-  </p>
-  <div id="add_object_div" hidden>
-    {% set lastobj = objects | last() %}
-    {% set newid = '%010d' % (lastobj.id | int + 1) %}
-    <form id="add_object" action="{{url_for('change_object')}}" method="POST">
-      <input type="hidden" name="action" value="add_object">
-      <p>
-        Insert Object ID: <input type="text" size="10" maxlength="10" name="id" value="{{newid}}">
-        <a class="button" onclick="$('#add_object').submit();">Save</a>
-      </p>
-    </form>
-  </div>
-  <form action="" method="post">
-    <p>Search: <input name="search" size="40" type="text"></p>
-  <form>
-  <table width="98%" align="center">
-    <tr>
-      <th width="10%">Object ID</th>
-      <th width="10%">Object Image</th>
-      <th width="10%">Object QR Code</th>
-      <th width="30%">Object Titles</th>
-      <th width="10%">Object Audio</th>
-      <th width="30%">Object Video</th>
-    </tr>
-    {% for object in objects %}
-    <tr>
-      <td>
-        <p>{{object.id}}</p>
-        <p>
-          <form id="delobj_{{object._id}}" action="{{url_for('change_object')}}" method="POST">
-          <input type="hidden" name="_id" value="{{object._id}}">
-          <input type="hidden" name="action" value="del_object">
-          <p><a class="button" onclick="$('#delobj_{{object._id}}').submit();">Delete</a></p>
-          </form>
-        </p>
-      </td>
-      <td onclick="window.location.href='{{url_for('get_object',id=object.id)}}';">
-        <img src="/thumbs/{{object.id}}.png">
-      </td>
-      <td onclick="window.location.href='{{url_for('get_object',id=object.id)}}';">
-        <img src="/qrcode/{{object.id}}.svg">
-      </td>
-      <td onclick="window.location.href='{{url_for('get_object',id=object.id)}}';">
-        {% for title in object.translations %}
-        {{title.isocode}}: {{title.title}}<br>
-        {% endfor %}
-      </td>
-      <td>
-        {% for title in object.translations %}
-        {% if title.audio %}
-          {{title.isocode}}:
-          <audio src="/audios/{{title.isocode}}-{{object.id}}.mp3" controls preload="none">
-            Your browser does not support the audio tag.
-          </audio>
-        {% else %}
-          {{title.isocode}}: No Audio<br>
-        {% endif %}
-        {% endfor %}
-      </td>
-      <td>
-        {% for title in object.translations %}
-        {% if title.video %}
-          {{title.isocode}}:
-          <video width="320" height="240" controls>
-            <source src="/videos/{{title.isocode}}-{{object.id}}.ogv" type="video/ogg">
-              Your browser does not support the video tag.
-          </video>
-        {% else %}
-          {{title.isocode}}: No Video<br>
-        {% endif %}
-        {% endfor %}
-    </tr>
-    {% endfor %}
-  </table>
+  <!-- New Language Form -->
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addObject">
+    Add object
+  </button>
 </div>
+
+<div class="panel panel-default">
+  <div class="row">
+    {% for object in objects %}
+    <div class="col-md-6">
+      <div class="list-group">
+        <div class="list-group-item list-group-item-success">
+          <img class="img-thumbnail" src="/thumbs/{{object.id}}.png">
+
+          <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Actions <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a href="{{ url_for('get_object',_id=object._id) }}">Edit</a></li>
+              <li><a href="{{ url_for('del_object',_id=object._id) }}">Delete</a></li>
+            </ul>
+          </div>
+
+        </div>
+        <div class="list-group-item">
+          <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+              <p>
+                {% for translation in object.translations %}
+                <div class="list-group">
+                  <div class="list-group-item list-group-item-info">
+                    Language: <b>{{translation.isocode}}</b>
+                  </div>
+                  <p class="list-group-item">{{translation.title}}</p>
+                  {% if translation.audio %}
+                  <div class="list-group-item">
+                    <audio preload="metadata" controls="controls" src="/audios/{{translation.isocode}}-{{object.id}}.mp3">
+                      Audio tag not supported
+                    </audio>
+                  </div>
+                  {% endif %}
+                  {% if translation.video %}
+                  <div class="list-group-item">
+                    <video preload="metadata" width="300" height="220"
+                      controls="controls" src="/videos/{{translation.isocode}}-{{object.id}}.ogv">
+                      Video tag not supported
+                    </video>
+                  </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+</div>
+
+{% else %}
+<div class="alert alert-danger" align="center" style="max-width: 400px;">
+  <p>You don't have permission to view this page.</p>
+</div>
+{% endif %}
 {% endblock %}
