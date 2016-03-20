@@ -87,8 +87,6 @@ Object_JSON = {
     "id": "",
     "views": 0,
     "votes": 0,
-    "audio": False,
-    "video": False,
     "translations": []
 }
 
@@ -260,9 +258,9 @@ def languages():
     check_access('languages')
 
     search_result = copy_cursor(mongodb.db.languages.find({}, sort=([('name',1),('variant',1)])))
-    countries = copy_cursor(mongodb.db.isocountries.find({}, {'_id': 0, 'name': 1, 'alpha2':1}, sort=([('name',1)])))
-    languages = copy_cursor(mongodb.db.isolanguages.find({}, {'_id': 0}, sort=([('English',1)])))
-    return render_template('languages.html', languages=search_result, isocountries=countries, isolanguages=languages)
+    isocountries = copy_cursor(mongodb.db.isocountries.find({}, {'_id': 0, 'name': 1, 'alpha2':1}, sort=([('name',1)])))
+    isolanguages = copy_cursor(mongodb.db.isolanguages.find({}, {'_id': 0}, sort=([('English',1)])))
+    return render_template('languages.html', languages=search_result, isocountries=isocountries, isolanguages=isolanguages)
 
 @virtualrest.route('/change_languages',methods=['POST'])
 def change_language():
@@ -433,14 +431,30 @@ def setupcore():
 def qrcode(data):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    size = int(request.args.get('size',8))
     qrdata = pyqrcode.create(data[:-4], )
     output = StringIO()
-    qrdata.svg(output, scale=8)
+    qrdata.svg(output, scale=size)
     contents = output.getvalue()
     output.close();
     response = virtualrest.response_class(contents, direct_passthrough=True, mimetype='image/svg+xml')
     response.headers.set('Content-Length',len(contents))
     return response
+
+@virtualrest.route('/export_list')
+def export_list():
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    check_access('objects')
+    objects = copy_cursor(mongodb.db.objects.find({},
+        {
+            '_id': 0,
+            'id': 1,
+            'translations.title': 1,
+        },
+        sort = [ ('id',1) ]
+    ))
+    return render_template('objects_list.html', objects=objects)
 
 @virtualrest.route('/objects')
 def objects():
@@ -459,8 +473,10 @@ def objects():
         },
         sort = [ ('id',1) ]
     ))
+    isocountries = copy_cursor(mongodb.db.isocountries.find({}, {'_id': 0, 'name': 1, 'alpha2':1}, sort=([('name',1)])))
+    isolanguages = copy_cursor(mongodb.db.isolanguages.find({}, {'_id': 0}, sort=([('English',1)])))
     languages = copy_cursor(mongodb.db.languages.find({}, sort=([('name',1),('variant',1)])))
-    return render_template('objects.html', objects=objects, languages=languages)
+    return render_template('objects.html', objects=objects, languages=languages, isolanguages=isolanguages, isocountries=isocountries)
 
 @virtualrest.route('/get_object/<_id>')
 def get_object(_id):
@@ -472,16 +488,30 @@ def get_object(_id):
     languages = copy_cursor(mongodb.db.languages.find({}, sort = ( [('code',1), ('locale',1)])))
     return render_template('object_detail.html', object=search_result, languages=languages)
 
-@virtualrest.route('/add_object/<id>', methods=['GET'])
-def add_object(id):
+@virtualrest.route('/add_object', methods=['POST'])
+def add_object():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
     check_access('objects')
-    if (search('\d{5,10}', id) is None):
-        abort(403)
-    Object_JSON['id'] = id
-    result = mongodb.db.objects.insert_one(Object_JSON.copy())
-    return redirect(url_for('get_object', _id = result.inserted_id))
+    keys = request.form.keys()
+    objid = request.form['id']
+    keys.remove('id')
+    languages = []
+    for key in keys:
+        elements = request.form.getlist(key)
+        languages.append({'isocode':elements[0],'title':elements[1],'text':elements[2]})
+    Object_JSON['id'] = objid
+    for language in languages:
+        Object_JSON['translations'].append({
+            'isocode': language['isocode'],
+            'title': language['title'],
+            'text': language['text'],
+            'audio': False,
+            'video': False
+        })
+    mongodb.db.objects.insert_one(Object_JSON.copy())
+    create_obj_img_intodb(request.files['file'],objid)
+    return redirect(url_for('objects'))
 
 @virtualrest.route('/del_object/<_id>', methods=['GET'])
 def del_object(_id):
@@ -493,18 +523,6 @@ def del_object(_id):
     if (result is not None):
         del_files_of_object(result['id'], ['all'])
     return redirect(url_for('objects'))
-
-@virtualrest.route('/upload_obj_img', methods=['POST'])
-def upload_obj_img():
-    if (not session.get('logged_in')):
-        return redirect(url_for('login'))
-    check_access('objects')
-
-    result = mongodb.db.objects.find_one({'_id': ObjectId(request.form['_id']) }, {'id':1})
-    if (search('\d{5,10}', result['id']) is None):
-        abort(403)
-    create_obj_img_intodb(request.files['file'],result['id'])
-    return redirect(url_for('get_object', _id = result['_id']))
 
 @virtualrest.route('/change_object', methods=['POST'])
 def change_object():
@@ -584,23 +602,6 @@ def upload_obj_media(mediatype,filename):
     file.close()
     del(file)
     return redirect(url_for('objects'))
-
-@virtualrest.route('/remove_media/<mediatype>/<isocode>/<id>')
-def remove_media(mediatype,isocode,id):
-    if (not session.get('logged_in')):
-        return redirect(url_for('login'))
-    check_access('objects')
-
-    mongodb.db.objects.update_one(
-        { 'id': id, 'translations.isocode': isocode },
-        { '$set': { 'translations.$.' + mediatype: False } }
-    )
-    gridfsdb = database.Database(MongoClient(host=GRIDFS_HOST, port=GRIDFS_PORT),mediatypes[mediatype]['db'])
-    fs = GridFS(gridfsdb)
-    file = fs.find_one({'filename': isocode + '-' + id + mediatypes[mediatype]['ext']})
-    if (file is not None):
-        fs.delete(file._id)
-    return redirect(url_for('get_object',id=id))
 
 @virtualrest.route('/<rtype>/<path:filename>')
 def get_file(rtype,filename):

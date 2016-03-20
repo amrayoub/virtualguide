@@ -1,0 +1,33 @@
+<html>
+<head>
+  <style>
+  @media print {
+    td {page-break-inside: avoid;}
+    tr {page-break-inside: avoid;}
+    table {page-break-inside: avoid;}
+    img {page-break-inside: avoid;}
+  }
+  </style>
+</head>
+
+{% block content %}
+<body onload="window.print();">
+  <div align="center">
+    {% set i = 1 %}
+    {% for object in objects %}
+    <table border=1>
+      <tr>
+        <td align="center">
+          <img src="/qrcode/{{object.id}}.svg?size=12"><br>
+          {{object.id}}<br>
+          {% for translation in object.translations %}
+            {{translation.title}}<br>
+          {% endfor %}
+        </td>
+      </tr>
+    </table><br>
+    {% endfor %}
+  </div>
+</body>
+{% endblock %}
+</html>
