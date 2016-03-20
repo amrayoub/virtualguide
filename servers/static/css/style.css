@@ -1,10 +1,7 @@
 body {
   padding-top: 70px;
-  padding-bottom: 40px;
-  padding-left: 20px;
-  padding-right: 20px;
   background-color: #fff;
-  background: url("/static/background.jpg") no-repeat;
+  background: url("/statics/imgs/background.jpg") no-repeat;
   background-size: cover;
   background-position: center center;
 }

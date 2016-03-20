@@ -45,7 +45,7 @@
           {% for item in translations[tab] %}
             <div class="input-group">
               <span class="input-group-addon">{{item}}</span>
-              {% if translations[tab][item]|length > 60 %}
+              {% if translations[tab][item]|length > 60 or (tab == "ABOUT_TAB" and item == "BODY") %}
               {% set size = translations[tab][item]|length %}
               <textarea id="{{tab}}_{{item}}" class="form-control" name="{{item}}" rows="{{size / 60}}" >{{translations[tab][item]}}</textarea>
               {% else %}

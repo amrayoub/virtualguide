@@ -4,11 +4,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Virtual Guide Web Admin - {% block title %}Home{% endblock %}</title>
-  <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='bootstrap.min.css')}}">
-  <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='bootstrap-theme.min.css')}}">
-  <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='style.css')}}">
-  <script src="{{url_for('static',filename='jquery-1.12.0.min.js')}}"></script>
-  <script src="{{url_for('static',filename='bootstrap.min.js')}}"></script>
+  <link rel="stylesheet" type="text/css" href="{{url_for('statics', rtype='css', filename='bootstrap.min.css')}}">
+  <link rel="stylesheet" type="text/css" href="{{url_for('statics', rtype='css', filename='bootstrap-theme.min.css')}}">
+  <link rel="stylesheet" type="text/css" href="{{url_for('statics', rtype='css', filename='style.css')}}">
+  <script src="{{url_for('statics', rtype='js', filename='jquery-1.12.0.min.js')}}"></script>
+  <script src="{{url_for('statics', rtype='js', filename='bootstrap.min.js')}}"></script>
   {% block header %}{% endblock %}
 </head>
 <body>
@@ -45,7 +45,9 @@
             Languages <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
-            <li><a href="/languages"><b>All languages</b></a></li>
+            <li><a href="/languages">All languages</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Configured Languages</li>
             {% for language in languages %}
             <li>
               <a href="{{ url_for('translations',code=language.code,locale=language.locale)}}">
@@ -67,7 +69,7 @@
           <a href="#" class="dropdown-toggle" data-toggle="dropdown"
             role="button" aria-haspopup="true" aria-expanded="false">
               <span aria-hidden="true" class="glyphicon glyphicon-user"></span>
-              {{session.username}} <span class="caret"></span>
+              {{session.user['fullname']}} <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
             <li><a href="/logout">Logout</a></li>
@@ -77,12 +79,14 @@
       </ul>
     </div>
   </nav>
-{% endif %}
-{% block content %}
+<div class="container">
+  {% endif %}
+  {% block content %}
+</div>
 <div class="container">
   <div class="jumbotron">
     <h2>Welcome to Virtual Guide Administrative Interface</h2>
-    <p>Welcome user <i>{{session.username}}</i>.</p>
+    <p>Welcome, {{session.user['fullname']}} <small>({{session.user['username']}})</small>.</p>
   </div>
 </div>
 {% endblock %}

@@ -5,7 +5,6 @@ import gevent
 from gevent import monkey
 monkey.patch_all()
 
-import sys
 import pyqrcode
 import mimetypes
 import ConfigParser
@@ -35,12 +34,17 @@ config = ConfigParser.SafeConfigParser({
 
 config.read('./virtrest.cfg')
 
-mediatypes = {'thumb': {'db': 'thumbs', 'ext': '.png'}, 'video': {'db': 'videos', 'ext': '.ogv'}, 'audio': {'db': 'audios', 'ext': '.mp3'}}
+mediatypes = {
+    'images': {'db': 'images', 'ext': '.png'},
+    'thumbs': {'db': 'thumbs', 'ext': '.png'},
+    'videos': {'db': 'videos', 'ext': '.ogv'},
+    'audios': {'db': 'audios', 'ext': '.mp3'}
+}
 
 auth_credentials = [
-    { 'username': 'admin', 'password': 'admin', 'role': 'admin' },
-    { 'username': 'expositor', 'password': 'expositor', 'role': 'expositor' },
-    { 'username': 'tradutor', 'password': 'tradutor', 'role': 'tradutor' },
+    { 'username': 'admin', 'password': 'admin', 'fullname': 'Administrador', 'role': 'admin' },
+    { 'username': 'expositor', 'password': 'expositor', 'fullname': 'Expositor', 'role': 'expositor' },
+    { 'username': 'tradutor', 'password': 'tradutor', 'fullname': 'Tradutor', 'role': 'tradutor' },
 ]
 
 roles = [
@@ -168,10 +172,58 @@ def genkeypair():
     certs = {'privkey': private_key, 'pubkey': pub_key}
     return certs
 
+def check_access(location):
+    rights = session.get('rights')
+    if ('all' in rights):
+        return True
+    if (location in rights):
+        return True
+    return abort(403)
+
+def del_files_of_object(objid, types=['all']):
+    allowed_types = ['images','thumbs','videos','audios']
+    if (types == ['all']):
+        types = allowed_types
+    for filetype in types:
+        if filetype in allowed_types:
+            dbname = mediatypes[filetype]['db']
+            ext = mediatypes[filetype]['ext']
+            gridfsdb = database.Database(MongoClient(host=GRIDFS_HOST, port=GRIDFS_PORT), dbname)
+            fs = GridFS(gridfsdb)
+            if (filetype in ['audios','videos']):
+                languages = mongodb.db.languages.find({}, {'_id': 0, 'code': 1, 'locale': 1})
+                for language in languages:
+                    isocode = ','.join([language['code'],language['locale']])
+                    fileid = fs.find_one({'filename': isocode + objid + ext})
+                    if (fileid is not None):
+                        fs.delete(fileid._id)
+            else:
+                fileid = fs.find_one({'filename': objid + ext})
+                if (fileid is not None):
+                    fs.delete(fileid._id)
+        else:
+            return False
+
+def create_obj_img_intodb(imagefile,objid):
+    sizes = {'images': (320,240), 'thumbs': (64,64)}
+    for filetype in sizes.keys():
+        output = StringIO()
+        im = Image.open(imagefile)
+        im.thumbnail(sizes[filetype], Image.ANTIALIAS)
+        im.save(output, format="PNG")
+        contents = output.getvalue()
+        output.close()
+        gridfsdb = database.Database(MongoClient(host=GRIDFS_HOST, port=GRIDFS_PORT), filetype)
+        fs = GridFS(gridfsdb)
+        del_files_of_object(objid, types=[filetype])
+        fs.put(contents, content_type=imagefile.content_type, filename = objid + '.png')
+        del(contents)
+
 @virtualrest.route('/')
 def index():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('home')
     languages = copy_cursor(mongodb.db.languages.find({}, sort=([('name',1),('variant',1)])))
     return render_template('layout.html',languages=languages)
 
@@ -183,7 +235,7 @@ def login():
             if (request.form['username'].lower() in credentials['username'].lower()):
                 if (request.form['passwd'] == credentials['password']):
                     session['logged_in'] = True
-                    session['username'] = request.form['username'].lower()
+                    session['user'] = credentials
                     for role in roles:
                         if ( credentials['role'] in role['name']):
                             session['rights'] = role['rights']
@@ -205,6 +257,8 @@ def logout():
 def languages():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('languages')
+
     search_result = copy_cursor(mongodb.db.languages.find({}, sort=([('name',1),('variant',1)])))
     countries = copy_cursor(mongodb.db.isocountries.find({}, {'_id': 0, 'name': 1, 'alpha2':1}, sort=([('name',1)])))
     languages = copy_cursor(mongodb.db.isolanguages.find({}, {'_id': 0}, sort=([('English',1)])))
@@ -214,6 +268,8 @@ def languages():
 def change_language():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('languages')
+
     changes = to_dict(request.form)
     del(changes['_id'])
     result = mongodb.db.languages.update_one (
@@ -226,6 +282,8 @@ def change_language():
 def del_language(_id):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('languages')
+
     result = mongodb.db.languages.delete_one({'_id': ObjectId(_id)})
     flash('Language deleted!')
     return redirect(url_for('languages'))
@@ -234,6 +292,8 @@ def del_language(_id):
 def add_language():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('languages')
+
     result = to_dict(request.form)
     mongodb.db.languages.insert_one(result)
     flash('Language added!')
@@ -243,6 +303,8 @@ def add_language():
 def translations(code,locale):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('translations')
+
     search_result = mongodb.db.translations.find_one({'isocode': code + '-' + locale},{'_id': 0});
     configs = copy_cursor(mongodb.db.configs.find({},{'_id':0, 'bgcolor': 1, 'header_color': 1, 'font_color': 1}))
     if (search_result is None):
@@ -256,6 +318,8 @@ def translations(code,locale):
 def change_translation(isocode,tab):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('translations')
+
     changes = to_dict(request.form)
     if ('files' in changes):
         del(changes['files'])
@@ -268,10 +332,12 @@ def change_translation(isocode,tab):
 
 @virtualrest.route('/main_config', methods=['GET','POST'])
 def main_config():
-    filenames = {'pubkey': 'rsa_1024_pub.pem', 'privkey': 'rsa_1024_priv.pem'}
-    certs = None
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('main_config')
+
+    filenames = {'pubkey': 'rsa_1024_pub.pem', 'privkey': 'rsa_1024_priv.pem'}
+    certs = None
     if request.method == "POST":
         changes = to_dict(request.form)
         if (changes['action'] == 'configurations'):
@@ -311,6 +377,8 @@ def main_config():
 def upload_file(filename):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('main_config')
+
     if (filename not in ['avatar','background','logo']):
         abort(403)
     sizes = {'avatar': (64,64), 'background': (400,300), 'logo': (320,240)}
@@ -378,6 +446,8 @@ def qrcode(data):
 def objects():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('objects')
+
     objects = copy_cursor(mongodb.db.objects.find({},
         {
             '_id': 1,
@@ -396,14 +466,51 @@ def objects():
 def get_object(_id):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('objects')
+
     search_result = mongodb.db.objects.find_one({'_id': ObjectId(_id)})
     languages = copy_cursor(mongodb.db.languages.find({}, sort = ( [('code',1), ('locale',1)])))
     return render_template('object_detail.html', object=search_result, languages=languages)
+
+@virtualrest.route('/add_object/<id>', methods=['GET'])
+def add_object(id):
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    check_access('objects')
+    if (search('\d{5,10}', id) is None):
+        abort(403)
+    Object_JSON['id'] = id
+    result = mongodb.db.objects.insert_one(Object_JSON.copy())
+    return redirect(url_for('get_object', _id = result.inserted_id))
+
+@virtualrest.route('/del_object/<_id>', methods=['GET'])
+def del_object(_id):
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    check_access('objects')
+
+    result = mongodb.db.objects.find_one_and_delete({ '_id': ObjectId(_id) }, projection={'_id':1, 'id':1})
+    if (result is not None):
+        del_files_of_object(result['id'], ['all'])
+    return redirect(url_for('objects'))
+
+@virtualrest.route('/upload_obj_img', methods=['POST'])
+def upload_obj_img():
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    check_access('objects')
+
+    result = mongodb.db.objects.find_one({'_id': ObjectId(request.form['_id']) }, {'id':1})
+    if (search('\d{5,10}', result['id']) is None):
+        abort(403)
+    create_obj_img_intodb(request.files['file'],result['id'])
+    return redirect(url_for('get_object', _id = result['_id']))
 
 @virtualrest.route('/change_object', methods=['POST'])
 def change_object():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('objects')
 
     if (request.form['action'] == 'del_translation'):
         flash('Translation deleted!')
@@ -449,56 +556,14 @@ def change_object():
         )
         id = result['id']
 
-    elif (request.form['action'] == 'add_object'):
-        Object_JSON['id'] = request.form['id']
-        mongodb.db.objects.insert_one(Object_JSON.copy())
-        flash('Object added!')
-        return redirect(url_for('objects'))
-
     return redirect(url_for('get_object',id=id))
-
-@virtualrest.route('/del_object/<_id>', methods=['GET'])
-def del_object(_id):
-    if (not session.get('logged_in')):
-        return redirect(url_for('login'))
-    result = mongodb.db.objects.find_one_and_delete({ '_id': ObjectId(_id) }, projection={'_id':1, 'id':1})
-    if (result is not None):
-        for rtype in mediatypes.keys():
-            gridfsdb = database.Database(MongoClient(host=GRIDFS_HOST, port=GRIDFS_PORT), mediatypes[rtype]['db'])
-            fs = GridFS(gridfsdb)
-            for objfile in fs.find({'filename': result['id'] + mediatypes[rtype]['ext']}):
-                fs.delete(objfile._id)
-    return redirect(url_for('objects'))
-
-@virtualrest.route('/upload_obj_img/<filename>', methods=['POST'])
-def upload_obj_img(filename):
-    if (not session.get('logged_in')):
-        return redirect(url_for('login'))
-    if (search('\d{5,10}', filename) is None):
-        abort(403)
-    sizes = {'images': (320,240), 'thumbs': (64,64)}
-    for filetype in sizes.keys():
-        gridfsdb = database.Database(MongoClient(host=GRIDFS_HOST, port=GRIDFS_PORT), filetype)
-        fs = GridFS(gridfsdb)
-        output = StringIO()
-        file = request.files['file']
-        im = Image.open(file)
-        im.thumbnail(sizes[filetype], Image.ANTIALIAS)
-        im.save(output, format="PNG")
-        contents = output.getvalue()
-        output.close()
-        oldfile = fs.find_one({'filename': filename + '.png'})
-        if (oldfile is not None):
-            fs.delete(oldfile._id)
-        fs.put(contents, content_type=file.content_type, filename=filename + '.png')
-        del(contents)
-    flash('File Uploaded!')
-    return redirect(url_for('objects'))
 
 @virtualrest.route('/upload_obj_media/<mediatype>/<filename>', methods=['POST'])
 def upload_obj_media(mediatype,filename):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('objects')
+
     file = request.files['file']
     if (file.filename[-4:] not in ['.mp3','.ogv']):
         flash('Filetype not allowed')
@@ -524,6 +589,7 @@ def upload_obj_media(mediatype,filename):
 def remove_media(mediatype,isocode,id):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+    check_access('objects')
 
     mongodb.db.objects.update_one(
         { 'id': id, 'translations.isocode': isocode },
@@ -540,6 +606,7 @@ def remove_media(mediatype,isocode,id):
 def get_file(rtype,filename):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
+
     if (rtype not in ['audios','videos','flags','images','thumbs']):
         abort(404)
     gridfsdb = database.Database(MongoClient(host=GRIDFS_HOST, port=GRIDFS_PORT),rtype)
@@ -555,17 +622,23 @@ def get_file(rtype,filename):
         return response
     abort(404)
 
-@virtualrest.route('/fonts/<filename>')
-def fonts(filename):
-    return send_from_directory(virtualrest.static_folder + '/fonts',filename, as_attachment=True)
+@virtualrest.route('/statics/<rtype>/<filename>')
+def statics(rtype,filename):
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    if (rtype in ['imgs','fonts','css','js']):
+        return send_from_directory(virtualrest.static_folder + '/' + rtype, filename, as_attachment=True)
+    else:
+        abort(404)
 
 if __name__ == '__main__':
     localport = config.getint('MAIN', 'admin_local_port')
     localaddress = config.get('MAIN', 'local_address')
-    #virtualrest.run(host=localaddress,port=localport, debug=True)
-    http_server = WSGIServer((localaddress, localport), virtualrest)
-    try:
-        http_server.serve_forever()
-    except KeyboardInterrupt:
-        http_server.stop()
-        sys.exit()
+    if (config.getboolean('MAIN', 'debug')):
+        virtualrest.run(host=localaddress,port=localport, debug=True)
+    else:
+        http_server = WSGIServer((localaddress, localport), virtualrest)
+        try:
+            http_server.serve_forever()
+        except KeyboardInterrupt:
+            http_server.stop()

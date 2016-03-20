@@ -137,9 +137,9 @@
               <button class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" id="removebtn" aria-expanded="false">Remove</button>
               <ul class="dropdown-menu" aria-labelledby="removebtn">
                 <li>
-                  <a class="btn btn-sm btn-block btn-danger" href="{{ url_for('del_language',_id=entry._id) }}">
-                    <font color="#fff"> Confirm </font>
-                  </a>
+                  <button class="btn btn-sm btn-block btn-danger" onclick="window.location.href = '{{ url_for('del_language',_id=entry._id) }}'">
+                    Confirm
+                  </button>
                 </li>
               </ul>
             </div>

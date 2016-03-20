@@ -8,17 +8,18 @@ monkey.patch_all()
 import hashlib
 import mimetypes
 import ConfigParser
-from time import time
 from re import search
+from time import time
 from M2Crypto import RSA
 from gridfs import GridFS
 from ast import literal_eval
 from base64 import b64decode
+from StringIO import StringIO
 from bson.json_util import dumps
 from gevent.wsgi import WSGIServer
 from flask.ext.pymongo import PyMongo
-from flask import Flask, make_response, abort, request, session
 from pymongo import database, MongoClient, ReturnDocument
+from flask import Flask, make_response, abort, request, session, Response, stream_with_context
 
 config = ConfigParser.SafeConfigParser({
     'host': '127.0.0.1',
@@ -30,7 +31,6 @@ config = ConfigParser.SafeConfigParser({
 })
 
 config.read('./virtrest.cfg')
-
 virtualrest = Flask(__name__)
 
 MONGO_HOST = config.get('MONGODB', 'host')
@@ -72,13 +72,6 @@ def lang_parse(isocode):
             return None
     return lang
 
-def_headers = {
-    'Access-Control-Allow-Origin' : '*',
-    'Content-Type' : 'application/json; charset=UTF-8',
-    'Access-Control-Max-Age': 86400,
-    'Access-Control-Allow-Credentials': True,
-}
-
 def output_json(obj, code, headers=None):
     resp = make_response(dumps(obj), code)
     resp.headers.extend(headers or {})
@@ -102,42 +95,73 @@ def get_languages():
         resp_items.append(language)
     return output_json({'Languages' : resp_items}, 200, def_headers)
 
-@virtualrest.route('/<rtype>/<isocode>/<filename>')
-def get_localized_file(rtype,isocode,filename):
-    #if (not session.get('logged_in')):
-    #    abort(403)
-    if (rtype not in ['audios','videos','flags','images']):
-        abort(404)
-    pattern = '^\w{2,20}\.(mp3|ogv|wav)$'
-    lang = lang_parse(isocode)
-    if ((search(pattern,filename) and lang) is not None):
-        griddb = database.Database(MongoClient(host=GRIDFS_HOST, port=GRIDFS_PORT),rtype)
-        fs = GridFS(griddb)
-        if (fs.exists(filename=lang + '-' + filename)):
-            file = fs.get_last_version(lang + '-' + filename)
-            mime = mimetypes.guess_type(filename)[0]
-            response = virtualrest.response_class(file, direct_passthrough=True, mimetype=mime)
-            response.headers.set('Content-Length',file.length)
-            return response
-    abort(404)
-
 @virtualrest.route('/<rtype>/<filename>')
 def get_file(rtype,filename):
+    MAX_SIZE=2097152 # 2MB
     if (not session.get('logged_in')):
         abort(403)
     if (rtype not in ['audios','videos','flags','images', 'thumbs']):
         abort(404)
     griddb = database.Database(MongoClient(host=GRIDFS_HOST, port=GRIDFS_PORT),rtype)
     fs = GridFS(griddb)
+
     if (fs.exists(filename=filename)):
         file = fs.get_last_version(filename)
+        file_length = file.length
+        chunk_length = file_length
         mime = mimetypes.guess_type(filename)[0]
-        response = virtualrest.response_class(file, direct_passthrough=True, mimetype=mime)
-        response.headers.set('Content-Length',file.length)
+
+        range_header = False
+        if ('Range' in request.headers.keys()):
+            range_header = True
+            start, end = request.headers['Range'].split('=')[1].split(',')[0].split('-')
+            if (end == '' or int(end) > file_length):
+                end = file_length
+            if (start == ''):
+                start = file_length - int(end)
+            chunk_file = StringIO()
+            end = int(end)
+            start = int(start)
+            file.seek(start)
+            chunk_file.write(file.read(end))
+            chunk_file.seek(0)
+            chunk_length = end - start
+            file.close()
+        else:
+            file.seek(0)
+
+        def generate():
+            while True:
+                if (range_header):
+                    chunk = chunk_file.read(MAX_SIZE)
+                else:
+                    chunk = file.read(MAX_SIZE)
+                if not chunk:
+                    break
+                yield chunk
+
+        if (chunk_length > MAX_SIZE):
+            if (range_header):
+                response = Response(stream_with_context(generate()), 206,  mimetype = mime)
+                response.headers.set('Content-Range', 'bytes %d-%d/%d' % (start, (start + chunk_length) - 1, file_length))
+            else:
+                response = Response(stream_with_context(generate()), 200,  mimetype = mime)
+                response.headers.set('Content-Length',file_length)
+        else:
+            if (range_header):
+                response = virtualrest.response_class(chunk_file, 206,  direct_passthrough = True, mimetype = mime)
+                response.headers.set('Content-Range', 'bytes %d-%d/%d' % (start, (start + chunk_length) - 1, file_length))
+            else:
+                response = virtualrest.response_class(file, 200, direct_passthrough = True, mimetype = mime)
+                response.headers.set('Content-Length',file_length)
+        if (rtype in ['audio','video']):
+            response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+            response.headers.set('Pragma','no-cache')
+        response.headers.set('Accept-Ranges','bytes')
         return response
     abort(404)
 
-@virtualrest.route('/translation')
+@virtualrest.route('/translation', methods = ['GET','OPTIONS'])
 def get_translation():
     resp_items = []
     isocode = lang_parse(request.args.get('lang'))
@@ -350,14 +374,24 @@ def default_page():
 
 if __name__ == '__main__':
     with virtualrest.app_context():
-        fallback = literal_eval(mongodb.db.configs.find({},{'_id':0,'fallbacks':1})[0]['fallbacks'])
-        result_limit = mongodb.db.configs.find({},{'_id':0,'result_limit':1})[0]['result_limit']
+        configs = mongodb.db.configs.find({},{'_id':0})[0]
+        fallback = literal_eval(configs['fallbacks'])
+        result_limit = configs['result_limit']
+        server_address = configs['server_address']
+    def_headers = {
+        'Access-Control-Allow-Origin' : '%s' % server_address,
+        'Content-Type' : 'application/json; charset=UTF-8',
+        'Access-Control-Max-Age': 86400,
+        'Access-Control-Allow-Credentials': True,
+    }
     localport = config.getint('MAIN', 'rest_local_port')
     localaddress = config.get('MAIN', 'local_address')
     insecure_session = False
-    #virtualrest.run(host=localaddress,port=localport, debug=True)
-    http_server = WSGIServer((localaddress, localport), virtualrest)
-    try:
-        http_server.serve_forever()
-    except KeyboardInterrupt:
-        http_server.stop()
+    if (config.getboolean('MAIN', 'debug')):
+        virtualrest.run(host=localaddress,port=localport, debug=True)
+    else:
+        http_server = WSGIServer((localaddress, localport), virtualrest)
+        try:
+            http_server.serve_forever()
+        except KeyboardInterrupt:
+            http_server.stop()

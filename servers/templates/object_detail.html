@@ -8,7 +8,7 @@
   <br>
   <div class="row">
     <!-- Object Image -->
-    <div class="col-md-6 col-md-offset-3">
+    <div class="col-md-8 col-md-offset-2">
       <div class="list-group">
         <!-- Object Header -->
         <div class="list-group-item list-group-item-success">
@@ -18,7 +18,7 @@
         <div class="list-group-item">
           <!-- Thumbnail for Object Image -->
             <div class="row">
-              <div class="col-md-7 col-sm-4">
+              <div class="col-md-8 col-sm-4">
                 <div class="thumbnail" align="center">
                   <p><img src="/images/{{object.id}}.png"></p>
                   <button class="btn btn-primary" type="button">
@@ -27,16 +27,20 @@
                   <button class="btn btn-primary" type="button">
                     Votes <span class="badge">{{object.votes}}</span>
                   </button><br>
-                  <input id="uploadFile" placeholder="Choose File" disabled="disabled" />
-                  <div class="fileUpload btn btn-primary">
-                    <span>Browse</span>
-                    <input id="uploadBtn" type="file" name="file" class="upload" />
-                  </div>
-                  <script type="text/javascript">
-                    document.getElementById("uploadBtn").onchange = function () {
-                      document.getElementById("uploadFile").value = this.value;
-                    };
-                  </script>
+                  <form role="form" action="{{ url_for('upload_obj_img') }}" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="_id" value="{{object._id}}">
+                    <input id="uploadFile" placeholder="Choose File" disabled="disabled">
+                    <div class="fileUpload btn btn-primary">
+                      <span>Browse</span>
+                      <input id="uploadBtn" type="file" name="file" class="upload">
+                    </div>
+                    <input class="btn btn-primary" type="submit" value="Upload">
+                  </form>
+                    <script type="text/javascript">
+                      document.getElementById("uploadBtn").onchange = function () {
+                        document.getElementById("uploadFile").value = this.value;
+                      };
+                    </script>
                 </div>
               </div>
               <!-- Grid for QR Code -->

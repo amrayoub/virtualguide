@@ -23,7 +23,7 @@ var translations = {
     'NO_SERVER': 'Não existe servidor disponível.',
     'NOUUID': 'Não foi possível determinar o UUID do dispositivo.\nTente abrir o aplicativo novamente.',
     'SETUP_TITLE': 'Fazer CheckIn',
-    'SCAN_BUTTON': 'Realizar CheckIn',
+    'SCAN_BUTTON': 'Capturar QRCode de Checkin',
     'EXIT_BUTTON': 'Sair do aplicativo',
     'NO_TRUSTED': 'Não existem servidores disponíveis.',
     'SCAN_TEXT': 'Antes de utilizar o Virtual Guide pela primeira vez,\
@@ -38,7 +38,7 @@ var translations = {
     'NO_SERVER': 'No server available.',
     'NOUUID': 'Device UUID can not be determined. Please, reopen application.',
     'SETUP_TITLE': 'Do CheckIn',
-    'SCAN_BUTTON': 'Scan CheckIn Code',
+    'SCAN_BUTTON': 'Scan Checkin QRCode',
     'EXIT_BUTTON': 'Exit application',
     'NO_TRUSTED': 'No servers available.',
     'SCAN_TEXT': 'Before use Virtual Guide Application for first time, it\'s necessary\

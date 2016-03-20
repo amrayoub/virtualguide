@@ -6,7 +6,7 @@
         <h2>{{'LANGUAGE_TAB.LANGUAGE' | translate}}: {{language.name}}</h2>
         <h2>{{'LANGUAGE_TAB.VARIANT' | translate}}: {{language.variant}}</h2>
         <div class="button-bar">
-          <a class="button button-balanced" ng-controller="ChangeLanguageCtrl" ng-click="changeLanguage('{{language.code}}-{{language.locale}}')" href="#/tab/languages">{{'MAIN.CONFIRM' | translate}}</a>
+          <a class="button button-balanced" ng-controller="ChangeLanguageCtrl" ng-click="changeLanguage('{{language.code}}-{{language.locale}}')" ui-sref="tab.dash">{{'MAIN.CONFIRM' | translate}}</a>
           <a class="button button-assertive" href="#/tab/languages">{{'MAIN.CANCEL' | translate}}</a>
         </div>
       </div>

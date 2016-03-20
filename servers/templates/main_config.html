@@ -7,10 +7,24 @@
 {% block content %}
 {% if 'all' in session['rights'] or 'main_config' in session['rights'] %}
 
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('[data-toggle="tooltip"]').tooltip();
+    $('#font_color, #header_color').colorpicker();
+  });
+</script>
+
+<!-- Application Preview -->
+<style type="text/css">
+  .well {
+    background: linear-gradient({{configs[0]['bgcolor']}});
+  }
+</style>
+
 <div class="panel panel-default">
   <ul class="nav nav-tabs" role="tablist">
     <li><a href="#tab-config" aria-controls="tab-config" role="tab" data-toggle="tab">Configurations</a></li>
-    <li><a href="#tab-images" aria-controls="tab-images" role="tab" data-toggle="tab">Images</a></li>
+    <li><a href="#tab-images" aria-controls="tab-images" role="tab" data-toggle="tab">App First Page Images</a></li>
     <li><a href="#tab-certificates" aria-controls="tab-certificates" role="tab" data-toggle="tab">Certificates</a></li>
     <li><a href="#tab-qrcode" aria-controls="tab-qrcode" role="tab" data-toggle="tab">Setup Code</a></li>
   </ul>
@@ -22,18 +36,61 @@
       <div class="row">
         <div class="col-md-4 col-md-offset-2">
           <form id="configurations" class="form-configs" method="POST" action="" role="form">
-            {% for config in configs[0] %}
+            <input type="hidden" name="action" value="configurations">
+            <input type="hidden" name="name" value="{{configs[0]['name']}}">
+            <p>
+              <!-- Header Color -->
               <div class="input-group">
-                <span class="input-group-addon" id="addon-{{config}}">{{config}}</span>
-                <input type="text" class="form-control" id="{{config}}" aria-describedby="addon-{{config}}" name="{{config}}" value="{{configs[0][config]}}">
-                <input type="hidden" name="action" value="configurations">
+                <span data-toggle="tooltip" data-placement="left" title="Header's color of App"
+                  class="input-group-addon" id="addon-header_color">
+                  Header Color
+                </span>
+                <input type="text" class="form-control" id="header_color" aria-describedby="addon-header_color" name="header_color" value="{{configs[0]['header_color']}}">
               </div>
-            {% endfor %}
-            <script type="text/javascript">
-              $(function(){
-                $('#font_color, #header_color').colorpicker();
-              });
-            </script>
+              <!-- Header Font Color -->
+              <div class="input-group">
+                <span data-toggle="tooltip" data-placement="left" title="Font's color of App Header"
+                  class="input-group-addon" id="addon-font_color">
+                  Header Font Color
+                </span>
+                <input type="text" class="form-control" id="font_color" aria-describedby="addon-font_color" name="font_color" value="{{configs[0]['font_color']}}">
+              </div>
+              <!-- Background Color -->
+              <div class="input-group">
+                <span data-toggle="tooltip" data-placement="left" title="Backgrond's color of App"
+                  class="input-group-addon" id="addon-bgcolor">
+                  Background Color
+                </span>
+                <input type="text" class="form-control" id="bgcolor" aria-describedby="addon-bgcolor" name="bgcolor" value="{{configs[0]['bgcolor']}}">
+              </div>
+            </p>
+            <p>
+              <!-- Result Limit -->
+              <div class="input-group">
+                <span data-toggle="tooltip" data-placement="left" title="Limit of how many suggestions is displayed to the user"
+                  class="input-group-addon" id="addon-result_limit">
+                  Suggestions Limit
+                </span>
+                <input type="number" min="1" max="30" class="form-control" id="result_limit" aria-describedby="addon-result_limit" name="result_limit" value="{{configs[0]['result_limit']}}">
+              </div>
+              <!-- Fallbacks -->
+              <div class="input-group">
+                <span data-toggle="tooltip" data-placement="left" title="When a translation is not available this is the rule for fallback"
+                  class="input-group-addon" id="addon-fallbacks">
+                  Language Fallback
+                </span>
+                <input type="text" class="form-control" id="fallbacks" aria-describedby="addon-fallbacks" name="fallbacks" value="{{configs[0]['fallbacks']}}">
+              </div>
+              <!-- Server Address -->
+              <div class="input-group">
+                <span data-toggle="tooltip" data-placement="left" title="Address of the Request Server"
+                  class="input-group-addon" id="addon-server_address">
+                  Server Address
+                </span>
+                <input type="text" class="form-control" id="server_address" aria-describedby="addon-server_address" name="server_address" value="{{configs[0]['server_address']}}">
+              </div>
+            </p>
+
             <input type="submit" class="btn btn-primary" value="Save">
           </form>
         </div>
@@ -41,7 +98,7 @@
           <table style="width: 300px" class="table">
             <thread>
               <tr>
-                <td>Application Preview</td>
+                <td class="bg-danger"><strong>Application Preview</strong></td>
               </tr>
               <tr bgcolor="{{configs[0]['header_color']}}">
                 <td align="center"><b><font color="{{configs[0]['font_color']}}">Header_Color / Font_Color</b></td>
@@ -90,10 +147,10 @@
               <p>This is the background image showed on every page. Use a beautiful image to cause imapact.</p>
               {% endif %}
               <form role="form" action="{{url_for('upload_file',filename=name)}}" method="post" enctype="multipart/form-data">
-                <input id="uploadFile-{{name}}" placeholder="Choose File" disabled="disabled" />
+                <input id="uploadFile-{{name}}" placeholder="Choose File" disabled="disabled">
                 <div class="fileUpload btn btn-primary">
                   <span>Browse</span>
-                  <input id="uploadBtn-{{name}}" type="file" name="file" class="upload" />
+                  <input id="uploadBtn-{{name}}" type="file" name="file" class="upload">
                 </div>
                 <script type="text/javascript">
                   document.getElementById("uploadBtn-{{name}}").onchange = function () {
@@ -112,12 +169,12 @@
       <div role="tabpanel" class="tab-pane fade" id="tab-certificates">
         <br>
         <div class="row">
-          <div class="col-sm-5 col-md-offset-2">
+          <div class="col-sm-6 col-md-offset-3">
             <form action="" method="POST" id="genkeypairs">
               <input type="hidden" name="action" value="genkeys">
               <p>Public key:<br>
               <pre>{{certs.pubkey}}</pre>
-              <input class="btn btn-primary" type="submit" value="Generate new key pairs">
+              <input class="btn btn-primary" type="submit" value="Generate new RSA 1024 bits key pairs">
             </form>
           </div>
         </div>

@@ -3,28 +3,37 @@
 
 {% block content %}
 {% if 'all' in session['rights'] or 'objects' in session['rights'] %}
-<div class="panel panel-default">
-  <!-- New Language Form -->
-  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addObject">
-    Add object
-  </button>
-</div>
+{% set lastobj = objects | last() %}
+{% set newid = '%010d' % (lastobj.id | int + 1) %}
 
+<p>
+  <div class="btn-group">
+    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Add New Object<span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+      <li><a href="{{ url_for('add_object',id=newid) }}">Add Object: {{newid}}</a></li>
+    </ul>
+  </div>
+</p>
+
+
+<!-- List Objects -->
 <div class="panel panel-default">
   <div class="row">
     {% for object in objects %}
     <div class="col-md-6">
       <div class="list-group">
         <div class="list-group-item list-group-item-success">
+          <p><span class="label label-default">{{object.id}}</span></p>
           <img class="img-thumbnail" src="/thumbs/{{object.id}}.png">
-
           <div class="btn-group">
-            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Actions <span class="caret"></span>
+            <a href="{{ url_for('get_object',_id=object._id) }}" class="btn btn-primary">Edit</a>
+            <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Delete <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
-              <li><a href="{{ url_for('get_object',_id=object._id) }}">Edit</a></li>
-              <li><a href="{{ url_for('del_object',_id=object._id) }}">Delete</a></li>
+              <li><a href="{{ url_for('del_object',_id=object._id) }}">Confirm</a></li>
             </ul>
           </div>
 
@@ -34,26 +43,33 @@
             <div class="col-md-8 col-md-offset-2">
               <p>
                 {% for translation in object.translations %}
+                {% set locale = translation.isocode.split('-') %}
                 <div class="list-group">
                   <div class="list-group-item list-group-item-info">
-                    Language: <b>{{translation.isocode}}</b>
+                    Language:
+                    <strong>
+                    {% for lang in languages %}
+                      {% if lang.code == locale[0] %}
+                        {{lang.variant}} / {{lang.name}}
+                      {% endif %}
+                    {% endfor %}
+                  </strong>
                   </div>
-                  <p class="list-group-item">{{translation.title}}</p>
-                  {% if translation.audio %}
+                  <p class="list-group-item">Title: {{translation.title}}</p>
                   <div class="list-group-item">
-                    <audio preload="metadata" controls="controls" src="/audios/{{translation.isocode}}-{{object.id}}.mp3">
-                      Audio tag not supported
-                    </audio>
+                    {% if translation.audio %}
+                    Audio: <span class="label label-success">Yes</span>
+                    {% else %}
+                    Audio: <span class="label label-danger">No</span>
+                    {% endif %}
                   </div>
-                  {% endif %}
-                  {% if translation.video %}
                   <div class="list-group-item">
-                    <video preload="metadata" width="300" height="220"
-                      controls="controls" src="/videos/{{translation.isocode}}-{{object.id}}.ogv">
-                      Video tag not supported
-                    </video>
+                    {% if translation.video %}
+                    Video: <span class="label label-success">Yes</span>
+                    {% else %}
+                    Video: <span class="label label-danger">No</span>
+                    {% endif %}
                   </div>
-                  {% endif %}
                 </div>
                 {% endfor %}
               </p>
