@@ -386,11 +386,17 @@ if __name__ == '__main__':
     }
     localport = config.getint('MAIN', 'rest_local_port')
     localaddress = config.get('MAIN', 'local_address')
-    insecure_session = False
-    if (config.getboolean('MAIN', 'debug')):
+    if (config.getboolean('MAIN', 'debug') and not config.getboolean('MAIN', 'use_ssl')):
         virtualrest.run(host=localaddress,port=localport, debug=True)
     else:
-        http_server = WSGIServer((localaddress, localport), virtualrest)
+        if (config.getboolean('MAIN', 'use_ssl')):
+            cert_file = config.get('MAIN', 'ssl_cert_file')
+            key_file = config.get('MAIN', 'ssl_key_file')
+            localport = config.getint('MAIN', 'ssl_port')
+            print(cert_file, key_file)
+            http_server = WSGIServer((localaddress, localport), virtualrest, keyfile=key_file, certfile=cert_file)
+        else:
+            http_server = WSGIServer((localaddress, localport), virtualrest)
         try:
             http_server.serve_forever()
         except KeyboardInterrupt:

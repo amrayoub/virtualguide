@@ -9,7 +9,8 @@
 {% if 'all' in session['rights'] or 'objects' in session['rights'] %}
 <!-- Panel -->
 <div class="panel panel-default">
-  <form role="addnewobject" action="{{ url_for('add_object') }}" method="POST" enctype="multipart/form-data">
+  <form role="changeobject" action="{{ url_for('change_object') }}" method="POST" enctype="multipart/form-data">
+    <input name="_id" value="{{object._id}}" type="hidden">
     <!-- Object Header -->
     <div class="row">
       <div class="col-md-3">
@@ -43,18 +44,23 @@
       <div class="col-md-12">
       </div>
     </div>
-
-    <!-- Ipput Translations -->
+    <p><a href="#" id="addTranslationBtn" class="btn btn-primary">New Translation</a></p>
+    <!-- Translations -->
     <div class="row">
       {% for translation in object.translations %}
+      {% set i = loop.index0 %}
       <div class="col-md-4">
         <div class="list-group">
           <div class="list-group-item list-group-item-info">
+            <label class="checkbox-inline">
+              <input type="checkbox" name="translation[{{i}}]" value="removelanguage">Remove Language
+            </label><br>
             Language:
             <strong>
             {% for language in languages | sort %}
               {% if language.code + '-' + language.locale == translation.isocode %}
                 {{language.variant}} / {{language.name}}
+                <input type="hidden" name="translation[{{i}}]" value="{{translation.isocode}}">
               {% endif %}
             {% endfor %}
           </strong>
@@ -62,32 +68,133 @@
           <div class="list-group-item">
             <div class="input-group">
               <span class="input-group-addon">Title</span>
-              <input class="form-control" name="translation[{{translation.isocode}}]" value="{{translation.title}}">
+              <input class="form-control" name="translation[{{i}}]" value="{{translation.title}}">
             </div>
             <div class="input-group">
               <span class="input-group-addon">Text</span>
-              <textarea class="form-control" name="translation[{{translation.isocode}}]">{{translation.title}}</textarea>
+              <textarea class="form-control" name="translation[{{i}}]">{{translation.text}}</textarea>
             </div>
+            <!-- Audio -->
             <div class="list-group-item">
-                <label>Audio</label>
-                {% if translation.audio == True %}
-                <audio controls="controls" preload="metadata" src="{{ url_for('get_file', rtype='audios', filename=translation.isocode + '-' + object.id + '.mp3') }}">
-                  Your browser doesn't support Audio TAG
-                </audio>
-                {% else %}
-                <span class="label label-danger">No</span>
-                {% endif %}
-                <!-- Upload Image -->
-                <input id="uploadAudio_{{translation.isocode}}" placeholder="Choose File" disabled="disabled">
-                <div class="fileUpload btn btn-sm btn-primary">
-                  <span>Browse</span>
-                  <input id="uploadAudio_{{translation.isocode}}_Btn" type="file" name="audiofile_{{translation.isocode}}" class="upload">
-                </div>
+              <label>Audio</label>
+              {% if translation.audio == True %}
+              <label class="checkbox-inline">
+                <input type="checkbox" name="translation[{{i}}]" value="removeaudio">Remove Audio
+              </label><br>
+              <audio controls="controls" preload="metadata" src="{{ url_for('get_file', rtype='audios', filename=translation.isocode + '-' + object.id + '.mp3') }}">
+                Your browser doesn't support Audio TAG
+              </audio>
+              {% else %}
+              <span class="label label-danger">No</span><br>
+              {% endif %}
+              <!-- Upload Image -->
+              <input id="uploadAudio_{{translation.isocode}}" placeholder="Choose File" disabled="disabled">
+              <div class="fileUpload btn btn-sm btn-primary">
+                <span>Browse</span>
+                <input id="uploadAudio_{{translation.isocode}}_Btn" type="file" name="audiofile_{{translation.isocode}}" class="upload">
+              </div>
+              <script type="text/javascript">
+              document.getElementById("uploadAudio_{{translation.isocode}}_Btn").onchange = function () {
+                document.getElementById("uploadAudio_{{translation.isocode}}").value = this.value;
+              };
+              </script>
+            </div>
+            <!-- Video -->
+            <div class="list-group-item">
+              <label>Video</label>
+              {% if translation.video == True %}
+              <label class="checkbox-inline">
+                <input type="checkbox" name="translation[{{i}}]" value="removevideo">Remove video
+              </label><br>
+              <video controls="controls" preload="metadata" src="{{ url_for('get_file', rtype='videos', filename=translation.isocode + '-' + object.id + '.ogv') }}">
+                Your browser doesn't support video TAG
+              </video>
+              {% else %}
+              <span class="label label-danger">No</span><br>
+              {% endif %}
+              <!-- Upload Image -->
+              <input id="uploadvideo_{{translation.isocode}}" placeholder="Choose File" disabled="disabled">
+              <div class="fileUpload btn btn-sm btn-primary">
+                <span>Browse</span>
+                <input id="uploadvideo_{{translation.isocode}}_Btn" type="file" name="videofile_{{translation.isocode}}" class="upload">
+              </div>
+              <script type="text/javascript">
+              document.getElementById("uploadvideo_{{translation.isocode}}_Btn").onchange = function () {
+                document.getElementById("uploadvideo_{{translation.isocode}}").value = this.value;
+              };
+              </script>
             </div>
           </div>
         </div>
       </div>
       {% endfor %}
+      <!-- New Language  -->
+      <div id="newtranslation" class="input_fields_wrap">
+      </div>
+      <script type="text/javascript">
+      /*
+        Original idea:
+        http://www.sanwebe.com/2013/03/addremove-input-fields-dynamically-with-jquery
+      */
+      var max_languages = {{languages|count}};
+      x = {{languages_used|count}};
+
+      $('#addTranslationBtn').click(function(e) {
+        e.preventDefault();
+        if (x < max_languages) {
+          $('#newtranslation').append(' \
+          <div class="col-md-4"> \
+            <div class="list-group"> \
+              <div class="list-group-item list-group-item-info"> \
+                Language: \
+                <input type="hidden" name="translation['+ x.toString() +']" value="new"> \
+                <select name="translation['+ x.toString() +']" class="js-example-basic-single"> \
+                {% for language in languages | sort %}
+                  {% if language.code+'-'+language.locale not in languages_used %}
+                  <option value="{{language.code}}-{{language.locale}}">{{language.name}} / {{language.variant}}</option> \
+                  {% endif %}
+                {% endfor %}
+                </select> \
+                <a href="#" class="btn btn-danger remove_button">Remove</a><br> \
+              </div> \
+              <div class="list-group-item"> \
+                <div class="input-group"> \
+                  <span class="input-group-addon">Title</span> \
+                  <input class="form-control" name="translation['+ x.toString() +']" placeholder="Object Title" required> \
+                  </div> \
+                <div class="input-group"> \
+                  <span class="input-group-addon">Text</span> \
+                  <textarea class="form-control" name="translation['+ x.toString() +']" placeholder="Object Text" required></textarea> \
+                </div> \
+                <div class="list-group-item"> \
+                    <label>Audio</label><br> \
+                    <input id="uploadAudio_'+ x.toString() +'" placeholder="Choose File" disabled="disabled"> \
+                    <div class="fileUpload btn btn-sm btn-primary"> \
+                      <span>Browse</span> \
+                      <input id="uploadAudio_Btn_'+ x.toString() +'" type="file" name="audiofile_new" class="upload"> \
+                    </div> \
+                    <br> \
+                </div> \
+              </div> \
+            </div> \
+          </div> ');
+
+          document.getElementById("uploadAudio_Btn_" + x.toString()).onchange = function () {
+            document.getElementById("uploadAudio_" + x.toString()).value = this.value;
+          };
+
+          $('.remove_button').click(function(e) {
+            e.preventDefault();
+            $(this).closest('div').closest('div').parent('div').parent('div').remove();
+            if (x > {{languages_used|count}}) {
+              x--;
+            }
+          });
+          x++;
+        };
+      });
+      </script>
+      <!-- End -->
     </div>
     <p>
       <a href="{{ url_for('objects') }}" class="btn btn-primary">Cancel</a>
@@ -98,57 +205,14 @@
 
 {% set current_translations = languages | count %}
 <script type="text/javascript">
+
 $(document).ready(function() {
   $(".js-example-basic-single").select2();
 
-  document.getElementById("uploadBtn").onchange = function () {
-    document.getElementById("uploadFile").value = this.value;
+  document.getElementById("uploadImageBtn").onchange = function () {
+    document.getElementById("uploadImage").value = this.value;
   };
 
-  /*
-    Original idea:
-    http://www.sanwebe.com/2013/03/addremove-input-fields-dynamically-with-jquery
-  */
-  var max_fields      = {{current_translations}}; //maximum input boxes allowed
-  var wrapper         = $(".input_fields_wrap"); //Fields wrapper
-  var add_button      = $(".add_field_button"); //Add button ID
-
-  var x = 1; //initlal text box count
-  $(add_button).click(function(e) { //on add input button click
-    e.preventDefault();
-    if (x < max_fields) { //max input box allowed
-      x++; //text box increment
-      $(wrapper).append('<div><a href="#" class="remove_field btn btn-sm btn-danger">Remove Translation</a> \
-      <div class="input-group"> \
-        <span class="input-group-addon">Translation</span> \
-        <select \
-          name="translations['+ x.toString() +']" \
-          id="translations1" \
-          class="js-example-basic-single" \
-          id="isocode"> \
-          {% for translation in languages %} \
-          {% set isocode = translation.code + '-' + translation.locale %} \
-          <option value="{{isocode}}">{{translation.name}} / {{translation.variant}}</option> \
-          {% endfor %} \
-        </select>\
-      </div> \
-      <div class="input-group"> \
-        <span class="input-group-addon">Title</span> \
-        <input class="form-control" name="translations['+ x.toString() +']" type="text" required><br> \
-        </div> \
-        <div class="input-group"> \
-        <span class="input-group-addon">Text</span> \
-        <input class="form-control" name="translations['+ x.toString() +']" type="text" required> \
-        </div></div><p></p>'); //add input box
-      $(".js-example-basic-single").select2();
-    }
-  });
-
-  $(wrapper).on("click",".remove_field", function(e) { //user click on remove text
-    e.preventDefault();
-    $(this).parent('div').remove();
-    x--;
-  })
 });
 </script>
 

@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block header %}
-  <link rel="stylesheet" media="screen" type="text/css" href="/static/summernote.css">
-  <script type="text/javascript" src="/static/summernote.min.js"></script>
+  <link rel="stylesheet" media="screen" type="text/css" href="{{ url_for('statics', rtype='css', filename='summernote.css')}}">
+  <script type="text/javascript" src="{{ url_for('statics', rtype='js', filename='summernote.min.js')}}"></script>
 {% endblock %}
 {% block title %}Translation: {{translations.isocode}}{% endblock %}
 {% block content %}

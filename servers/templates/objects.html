@@ -10,6 +10,19 @@
 {% if 'all' in session['rights'] or 'objects' in session['rights'] %}
 {% set lastobj = objects | last() %}
 {% set newid = '%010d' % (lastobj.id | int + 1) %}
+{% set pagination %}
+  {% if total_pages > 1 %}
+  <ul class="pagination">
+    {% for page in range(0,total_pages + 1) %}
+    {% if loop.index0 == curpage %}
+    <li class="active"><a href="{{ url_for('objects', max_results=max_results|default(15), page=loop.index0)}}">{{loop.index}}</a></li>
+    {% else %}
+    <li><a href="{{ url_for('objects', max_results=max_results|default(15), page=loop.index0)}}">{{loop.index}}</a></li>
+    {% endif %}
+   {% endfor %}
+  </ul>
+  {% endif %}
+{% endset %}
 
 <!-- New Language Form -->
 <p>
@@ -91,6 +104,7 @@
 
 <!-- List Objects -->
 <div class="panel panel-default">
+  {{pagination|safe}}
   <div class="row">
     {% for object in objects %}
     <div class="col-md-6">
@@ -151,6 +165,7 @@
     </div>
   {% endfor %}
   </div>
+  {{pagination|safe}}
 </div>
 
 {% set current_translations = languages | count %}

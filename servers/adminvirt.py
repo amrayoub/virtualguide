@@ -147,6 +147,7 @@ Translation_JSON = {
     }
 }
 
+# To Dict
 def to_dict(dictionary):
     resp = {}
     for i in dictionary:
@@ -201,6 +202,42 @@ def del_files_of_object(objid, types=['all']):
                     fs.delete(fileid._id)
         else:
             return False
+
+def del_obj_media(objid, isocode, mediatype):
+    if (mediatype not in ['audios','videos']):
+        return False
+
+    gridfsdb = database.Database(MongoClient(host=GRIDFS_HOST, port=GRIDFS_PORT),mediatypes[mediatype]['db'])
+    fs = GridFS(gridfsdb)
+
+    mongodb.db.objects.update_one(
+        { 'id': objid, 'translations.isocode': isocode },
+        { '$set': { 'translations.$.audio': False } }
+    )
+    oldfile = fs.find_one({'filename': isocode + '-' + objid + mediatypes[mediatype]['ext']})
+    if (oldfile is not None):
+        fs.delete(oldfile._id)
+    return True
+
+def set_obj_media(objid, isocode, mediatype, file):
+    if (file.filename[-4:] not in ['.mp3','.ogv']):
+        return False
+    if (mediatype not in ['audios','videos']):
+        return False
+
+    gridfsdb = database.Database(MongoClient(host=GRIDFS_HOST, port=GRIDFS_PORT),mediatypes[mediatype]['db'])
+    fs = GridFS(gridfsdb)
+
+    mongodb.db.objects.update_one(
+        { 'id': objid, 'translations.isocode': isocode },
+        { '$set': { 'translations.$.' + mediatype: True } }
+    )
+    oldfile = fs.find_one({'filename': isocode + '-' + objid + mediatypes[mediatype]['ext']})
+    if (oldfile is not None):
+        fs.delete(oldfile._id)
+    oid = fs.put(file, content_type=file.content_type, filename=isocode + '-' + objid + mediatypes[mediatype]['ext'])
+
+    return True
 
 def create_obj_img_intodb(imagefile,objid):
     sizes = {'images': (320,240), 'thumbs': (64,64)}
@@ -456,12 +493,13 @@ def export_list():
     ))
     return render_template('objects_list.html', objects=objects)
 
-@virtualrest.route('/objects')
-def objects():
+@virtualrest.route('/objects/', defaults={'max_results': 15, 'page': 0})
+@virtualrest.route('/objects/<int:max_results>/<int:page>')
+def objects(max_results, page):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
     check_access('objects')
-
+    total_pages = mongodb.db.objects.find({}).count() / max_results
     objects = copy_cursor(mongodb.db.objects.find({},
         {
             '_id': 1,
@@ -471,12 +509,22 @@ def objects():
             'translations.video': 1,
             'translations.isocode': 1
         },
+        skip = (max_results * page),
+        limit = max_results,
         sort = [ ('id',1) ]
     ))
     isocountries = copy_cursor(mongodb.db.isocountries.find({}, {'_id': 0, 'name': 1, 'alpha2':1}, sort=([('name',1)])))
     isolanguages = copy_cursor(mongodb.db.isolanguages.find({}, {'_id': 0}, sort=([('English',1)])))
     languages = copy_cursor(mongodb.db.languages.find({}, sort=([('name',1),('variant',1)])))
-    return render_template('objects.html', objects=objects, languages=languages, isolanguages=isolanguages, isocountries=isocountries)
+    return render_template('objects.html',
+        objects=objects,
+        languages=languages,
+        isolanguages=isolanguages,
+        isocountries=isocountries,
+        curpage=page,
+        total_pages=total_pages,
+        max_results=max_results
+    )
 
 @virtualrest.route('/get_object/<_id>')
 def get_object(_id):
@@ -486,7 +534,10 @@ def get_object(_id):
 
     search_result = mongodb.db.objects.find_one({'_id': ObjectId(_id)})
     languages = copy_cursor(mongodb.db.languages.find({}, sort = ( [('code',1), ('locale',1)])))
-    return render_template('object_detail.html', object=search_result, languages=languages)
+    languages_used = []
+    for t in search_result['translations']:
+        languages_used.append(t['isocode'])
+    return render_template('object_detail.html', object=search_result, languages=languages, languages_used=languages_used)
 
 @virtualrest.route('/add_object', methods=['POST'])
 def add_object():
@@ -530,78 +581,66 @@ def change_object():
         return redirect(url_for('login'))
     check_access('objects')
 
-    if (request.form['action'] == 'del_translation'):
-        flash('Translation deleted!')
-        result = mongodb.db.objects.find_one_and_update(
-            { '_id': ObjectId(request.form['_id']) },
-            { '$pull': {'translations': {'isocode': request.form['isocode']} } },
-            projection = {'id': 1}
-        )
-        id = result['id']
+    _id = request.form['_id']
+    objid = request.form['id']
+    for file_key in request.files.keys():
+        if (request.files[file_key].filename != ''):
+            if (file_key == 'imagefile'):
+                create_obj_img_intodb(request.files[file_key],objid)
+            else:
+                isocode = file_key[-5:]
+                set_obj_media(objid,isocode, 'audios', request.files[file_key])
 
-    elif (request.form['action'] == 'add_translation'):
-        flash('Translation Added!')
-        result = mongodb.db.objects.find_one_and_update(
-            { '_id': ObjectId(request.form['_id']) },
-            { '$addToSet': {'translations': {
-                'isocode': request.form['isocode'],
-                'title': request.form['title'],
-                'text': request.form['text'],
-                'audio': False,
-                'video': False
-                }
-            } },
-            projection = {'id': 1},
-            upsert = True
-        )
-        id = result['id']
+    keys = request.form.keys()
+    keys.remove('_id')
+    keys.remove('id')
+    for key in keys:
+        newlanguage = False
+        elements = request.form.getlist(key)
+        if (len(elements) < 3):
+            break
+        if (elements[0] == 'new'):
+            elements.pop(0)
+            newlanguage = True
+        elif (elements[0] == 'removelanguage'):
+            isocode = elements.pop(1)
+            result = mongodb.db.objects.update_one(
+                { '_id': ObjectId(_id) },
+                { '$pull': {'translations': {'isocode': isocode} } }
+            )
+        else:
+            isocode = elements.pop(0)
+            if (newlanguage):
+                result = mongodb.db.objects.update_one(
+                    { '_id': ObjectId(_id) },
+                    { '$addToSet': {'translations': {
+                        'isocode': isocode,
+                        'title': elements[0],
+                        'text': elements[1],
+                        'audio': False,
+                        'video': False
+                        }
+                    } },
+                    upsert = True
+                )
+            else:
+                result = mongodb.db.objects.update_one(
+                    {
+                        '_id': ObjectId(_id),
+                        'translations': { '$elemMatch': {'isocode': isocode} }
+                    },{
+                        '$set': {
+                            'id': objid,
+                            'translations.$.title': elements[0],
+                            'translations.$.text': elements[1]
+                        }
+                    },
+                    upsert = False
+                )
+        if (elements[-1] == 'removeaudio'):
+            del_obj_media(objid, isocode, 'audios')
 
-    elif (request.form['action'] == 'change_translation'):
-        flash('Translation Changed!')
-        result = mongodb.db.objects.find_one_and_update(
-            {
-                '_id': ObjectId(request.form['_id']),
-                'translations': { '$elemMatch': {'isocode': request.form['isocode'] } }
-            },{
-                '$set': {
-                    'translations.$.isocode': request.form['isocode'],
-                    'translations.$.title': request.form['title'],
-                    'translations.$.text': request.form['text'],
-                }
-            },
-            projection = {'id': 1},
-            upsert = False
-        )
-        id = result['id']
-
-    return redirect(url_for('get_object',id=id))
-
-@virtualrest.route('/upload_obj_media/<mediatype>/<filename>', methods=['POST'])
-def upload_obj_media(mediatype,filename):
-    if (not session.get('logged_in')):
-        return redirect(url_for('login'))
-    check_access('objects')
-
-    file = request.files['file']
-    if (file.filename[-4:] not in ['.mp3','.ogv']):
-        flash('Filetype not allowed')
-        return redirect(url_for('objects'))
-    if (mediatype not in ['audio','video']):
-        abort(404)
-    isocode = request.form['isocode']
-    mongodb.db.objects.update_one(
-        { 'id': filename, 'translations.isocode': isocode },
-        { '$set': { 'translations.$.' + mediatype: True } }
-    )
-    gridfsdb = database.Database(MongoClient(host=GRIDFS_HOST, port=GRIDFS_PORT),mediatypes[mediatype]['db'])
-    fs = GridFS(gridfsdb)
-    oldfile = fs.find_one({'filename': isocode + '-' + filename + mediatypes[mediatype]['ext']})
-    if (oldfile is not None):
-        fs.delete(oldfile._id)
-    oid = fs.put(file, content_type=file.content_type, filename=isocode + '-' + filename + mediatypes[mediatype]['ext'])
-    file.close()
-    del(file)
-    return redirect(url_for('objects'))
+    return redirect(url_for('get_object',_id=_id))
 
 @virtualrest.route('/<rtype>/<path:filename>')
 def get_file(rtype,filename):
@@ -625,8 +664,6 @@ def get_file(rtype,filename):
 
 @virtualrest.route('/statics/<rtype>/<filename>')
 def statics(rtype,filename):
-    if (not session.get('logged_in')):
-        return redirect(url_for('login'))
     if (rtype in ['imgs','fonts','css','js']):
         return send_from_directory(virtualrest.static_folder + '/' + rtype, filename, as_attachment=True)
     else:
