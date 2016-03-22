@@ -39,22 +39,29 @@ A idéia central é utilizar um aplicativo único para qualquer exposição, sej
 ### Como ele funciona
 
 É relativamente simples, o sistema é divido em 4 partes:
- 1) O cliente mobile
- 2) O Servidor REST (servidor de consulta)
- 3) O Banco de Dados
- 4) A interface de administração
+ 1. O cliente mobile
+ 2. O Servidor REST (servidor de consulta)
+ 3. O Banco de Dados
+ 4. A interface de administração
 
 ![Como funciona](https://raw.githubusercontent.com/allangood/virtualguide/master/site_media/virtualguide_pt.jpg "Como Funciona")
 
-1) O administrador insere os dados no banco de dados
-2) O cliente faz requisições ao servidor REST
-3) O servidor REST valida as requisições, consulta o banco de dados e devolve uma resposta.
+1. Os expositores inserem os dados no banco de dados através da interface Web;
+ 1. Os administradores do aplicativo fazem as customizações necessárias;
+ 2. Os administradores imprimem o código de Checkin e colocam na entrada da exposição;
+2. Os visitantes capturam o código de Checkin antes de entrar na exposição;
+3. Os visitantes capturam os códigos (QR Code) dos items;
+4. O aplicativo envia o código ao servidor de consulta (REST);
+ 1. O servidor REST valida as requisições, consulta o banco de dados e devolve uma resposta;
+5. O aplicativo mostra os dados recebidos pelo servidor (texto, foto, audio e video)
 
 ### FAQ
-*Por que utilizar um banco NoSQL?*
+**Por que utilizar um banco NoSQL?**
+
 Porque não preciso de um banco SQL, simples assim. As bases não precisam de relacionamentos nem de constraints, são simples repositórios. Portanto, são casos típicos de uso de bases NoSQL.
 
-*Por que usar GridFS?*
+**Por que usar GridFS?**
+
 Quando imaginei este aplicativo, pensei no Museu do Louvre, com milhares de obras e uma infinidade de usuário o tempo todo!
 O MongoDB e GridFS foram feitos com a idea de Cluster. Crescimento horizontal. Caso seja necessário utilizar vários servidores, distribuir os arquivos em diversos servidores seria um problema. Replicação, rsync, GFS, OCFS, storage externo... Isso dificulta e encarece uma solução simples. Com o MongoDB e GridFS, basta adicionar servidores com discos internos e pronto. Simples, rápido, barato e muito mais eficiente. Para quê complicar? Keep It Simple - KIS right? :)
 
@@ -72,7 +79,6 @@ Sério? Por que não seria? AngularJS é Software Livre, Ionic também, o Debian
 - Reprodução de vídeo: A tag video possui um problema e não reproduz corretamente;
 
 Espero que possa ajudá-los!
-
 
 ### TODO:
 - [X] Reescrever a interface web usando Bootstrap 3 (feito!)
