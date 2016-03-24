@@ -3,7 +3,6 @@
   <link rel="stylesheet" type="text/css" href="{{url_for('statics', rtype='css', filename='select2.min.css')}}">
   <script src="{{url_for('statics', rtype='js', filename='select2.min.js')}}"></script>
 {% endblock %}
-
 {% block title %}Objects{% endblock %}
 
 {% block content %}
@@ -26,7 +25,7 @@
 
 <!-- New Language Form -->
 <p>
-  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addObject">
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addObject" {{disabled}}>
     Create new object
   </button>
   <a href="{{ url_for('export_list') }}" target="_new" class="btn btn-primary">Print objects list</a>
@@ -113,8 +112,12 @@
           <p><span class="label label-default">{{object.id}}</span></p>
           <img class="img-thumbnail" src="/thumbs/{{object.id}}.png">
           <div class="btn-group">
+            {% if disabled == 'disabled' %}
+            <a href="#" class="btn btn-primary" {{disabled}}>Edit</a>
+            {% else %}
             <a href="{{ url_for('get_object',_id=object._id) }}" class="btn btn-primary">Edit</a>
-            <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {% endif %}
+            <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" {{disabled}}>
               Delete <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">

@@ -5,6 +5,7 @@ import gevent
 from gevent import monkey
 monkey.patch_all()
 
+import hashlib
 import pyqrcode
 import mimetypes
 import ConfigParser
@@ -40,18 +41,6 @@ mediatypes = {
     'videos': {'db': 'videos', 'ext': '.ogv'},
     'audios': {'db': 'audios', 'ext': '.mp3'}
 }
-
-auth_credentials = [
-    { 'username': 'admin', 'password': 'admin', 'fullname': 'Administrador', 'role': 'admin' },
-    { 'username': 'expositor', 'password': 'expositor', 'fullname': 'Expositor', 'role': 'expositor' },
-    { 'username': 'tradutor', 'password': 'tradutor', 'fullname': 'Tradutor', 'role': 'tradutor' },
-]
-
-roles = [
-    { 'name': 'admin', 'rights': ['all'] },
-    { 'name': 'expositor', 'rights': ['home','objects'] },
-    { 'name': 'tradutor', 'rights': ['home','languages', 'translations'] },
-]
 
 virtualrest = Flask(__name__)
 
@@ -171,12 +160,25 @@ def genkeypair():
     certs = {'privkey': private_key, 'pubkey': pub_key}
     return certs
 
+def auth_user(username, password):
+    return_auth = False
+    password = hashlib.md5(password).hexdigest()
+    user_credentials = mongodb.db.users.find_one({'username': username.lower()}, projection={'_id': 0})
+    rights = {}
+    if (user_credentials is not None and password == user_credentials['password']):
+        for r in mongodb.db.roles.find({'rolename': {'$in': user_credentials['roles']}}, projection={'_id':0, 'rights':1}):
+            rights.update(r['rights'])
+        return_auth = {'username': username.lower(), 'fullname': user_credentials['fullname'], 'rights': rights}
+    else:
+        return False
+    return return_auth
+
 def check_access(location):
     rights = session.get('rights')
-    if ('all' in rights):
-        return True
-    if (location in rights):
-        return True
+    if ('all' in rights.keys()):
+        return 'rw'
+    if (location in rights.keys()):
+        return rights[location]
     return abort(403)
 
 def del_files_of_object(objid, types=['all']):
@@ -258,27 +260,18 @@ def create_obj_img_intodb(imagefile,objid):
 def index():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
-    check_access('home')
     languages = copy_cursor(mongodb.db.languages.find({}, sort=([('name',1),('variant',1)])))
     return render_template('layout.html',languages=languages)
 
 @virtualrest.route('/login', methods=['GET','POST'])
 def login():
-    error = None
     if (request.method == 'POST'):
-        for credentials in auth_credentials:
-            if (request.form['username'].lower() in credentials['username'].lower()):
-                if (request.form['passwd'] == credentials['password']):
-                    session['logged_in'] = True
-                    session['user'] = credentials
-                    for role in roles:
-                        if ( credentials['role'] in role['name']):
-                            session['rights'] = role['rights']
-                    return redirect(url_for('index'))
-                    break
-        else:
-            session['logged_in'] = False
-            flash('Username or password incorrect.')
+        auth_return = auth_user(request.form['username'],request.form['passwd'])
+        if (auth_return):
+            session['logged_in'] = True
+            session['user'] = {'username': auth_return['username'], 'fullname': auth_return['fullname']}
+            session['rights'] = auth_return['rights']
+            return redirect(url_for('index'))
     return render_template('login.html')
 
 @virtualrest.route('/logout')
@@ -288,22 +281,31 @@ def logout():
     flash('Logged out')
     return redirect(url_for('login'))
 
+@virtualrest.route('/users')
+def users():
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    check_access('users')
+    users = copy_cursor( mongodb.db.users.find({}, sort=([('username',1)]) ) )
+    roles = copy_cursor( mongodb.db.roles.find({}, sort=([('rolename',1)]) ) )
+    return render_template('users.html', users=users, roles=roles)
+
 @virtualrest.route('/languages')
 def languages():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
-    check_access('languages')
-
+    access = check_access('languages')
     search_result = copy_cursor(mongodb.db.languages.find({}, sort=([('name',1),('variant',1)])))
     isocountries = copy_cursor(mongodb.db.isocountries.find({}, {'_id': 0, 'name': 1, 'alpha2':1}, sort=([('name',1)])))
     isolanguages = copy_cursor(mongodb.db.isolanguages.find({}, {'_id': 0}, sort=([('English',1)])))
-    return render_template('languages.html', languages=search_result, isocountries=isocountries, isolanguages=isolanguages)
+    return render_template('languages.html', access=access, languages=search_result, isocountries=isocountries, isolanguages=isolanguages)
 
 @virtualrest.route('/change_languages',methods=['POST'])
 def change_language():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
-    check_access('languages')
+    if (check_access('languages') != 'rw'):
+        abort(403)
 
     changes = to_dict(request.form)
     del(changes['_id'])
@@ -317,7 +319,8 @@ def change_language():
 def del_language(_id):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
-    check_access('languages')
+    if (check_access('languages') != 'rw'):
+        abort(403)
 
     result = mongodb.db.languages.delete_one({'_id': ObjectId(_id)})
     flash('Language deleted!')
@@ -327,7 +330,8 @@ def del_language(_id):
 def add_language():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
-    check_access('languages')
+    if (check_access('languages') != 'rw'):
+        abort(403)
 
     result = to_dict(request.form)
     mongodb.db.languages.insert_one(result)
@@ -338,7 +342,7 @@ def add_language():
 def translations(code,locale):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
-    check_access('translations')
+    access = check_access('translations')
 
     search_result = mongodb.db.translations.find_one({'isocode': code + '-' + locale},{'_id': 0});
     configs = copy_cursor(mongodb.db.configs.find({},{'_id':0, 'bgcolor': 1, 'header_color': 1, 'font_color': 1}))
@@ -347,13 +351,14 @@ def translations(code,locale):
         mongodb.db.translations.insert_one(Translation_JSON)
         return redirect(url_for('translations', code=code,locale=locale))
     languages = copy_cursor(mongodb.db.languages.find({}, sort=([('name',1),('variant',1)])))
-    return render_template('show_translations.html',translations=search_result, configs=configs, languages=languages)
+    return render_template('show_translations.html', access=access, translations=search_result, configs=configs, languages=languages)
 
 @virtualrest.route('/change_translation/<isocode>/<tab>',methods=['POST'])
 def change_translation(isocode,tab):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
-    check_access('translations')
+    if (check_access('translations') != 'rw'):
+        abort(403)
 
     changes = to_dict(request.form)
     if ('files' in changes):
@@ -369,11 +374,13 @@ def change_translation(isocode,tab):
 def main_config():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
-    check_access('main_config')
+    access = check_access('main_config')
+    if (request.method == 'POST' and access != 'rw'):
+        abort(403)
 
     filenames = {'pubkey': 'rsa_1024_pub.pem', 'privkey': 'rsa_1024_priv.pem'}
     certs = None
-    if request.method == "POST":
+    if (request.method == 'POST'):
         changes = to_dict(request.form)
         if (changes['action'] == 'configurations'):
             del(changes['action'])
@@ -387,8 +394,6 @@ def main_config():
                 if (oldfile is not None):
                     fs.delete(oldfile._id)
                 fs.put(certs[key].copy(), content_type="text/plain", filename=filenames[key])
-                print('Gravado chave: %s' % key)
-                print(certs[key])
 
     result = mongodb.db.configs.find({},{'_id':0})
     gridfsdb = database.Database(MongoClient(host=GRIDFS_HOST, port=GRIDFS_PORT),'images')
@@ -406,7 +411,7 @@ def main_config():
             pubkey = file.read()
             certs = {'pubkey': pubkey}
     languages = copy_cursor(mongodb.db.languages.find({}, sort=([('name',1),('variant',1)])))
-    return render_template('main_config.html',images=imgresult,configs=result,certs=certs,languages=languages)
+    return render_template('main_config.html', access=access, images=imgresult,configs=result,certs=certs,languages=languages)
 
 @virtualrest.route('/upload_file/<filename>', methods=['POST'])
 def upload_file(filename):
@@ -498,7 +503,7 @@ def export_list():
 def objects(max_results, page):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
-    check_access('objects')
+    access = check_access('objects')
     total_pages = mongodb.db.objects.find({}).count() / max_results
     objects = copy_cursor(mongodb.db.objects.find({},
         {
@@ -517,6 +522,7 @@ def objects(max_results, page):
     isolanguages = copy_cursor(mongodb.db.isolanguages.find({}, {'_id': 0}, sort=([('English',1)])))
     languages = copy_cursor(mongodb.db.languages.find({}, sort=([('name',1),('variant',1)])))
     return render_template('objects.html',
+        access=access,
         objects=objects,
         languages=languages,
         isolanguages=isolanguages,
@@ -589,56 +595,51 @@ def change_object():
                 create_obj_img_intodb(request.files[file_key],objid)
             else:
                 isocode = file_key[-5:]
-                set_obj_media(objid,isocode, 'audios', request.files[file_key])
+                set_obj_media(objid, isocode, 'audios', request.files[file_key])
 
     keys = request.form.keys()
     keys.remove('_id')
     keys.remove('id')
     for key in keys:
-        newlanguage = False
         elements = request.form.getlist(key)
         if (len(elements) < 3):
             break
         if (elements[0] == 'new'):
             elements.pop(0)
-            newlanguage = True
-        elif (elements[0] == 'removelanguage'):
-            isocode = elements.pop(1)
             result = mongodb.db.objects.update_one(
                 { '_id': ObjectId(_id) },
-                { '$pull': {'translations': {'isocode': isocode} } }
+                { '$addToSet': {'translations': {
+                    'isocode': elements[0],
+                    'title': elements[1],
+                    'text': elements[2],
+                    'audio': False,
+                    'video': False
+                    }
+                } },
+                upsert = True
+            )
+        elif (elements[0] == 'removelanguage'):
+            elements.pop(0)
+            result = mongodb.db.objects.update_one(
+                { '_id': ObjectId(_id) },
+                { '$pull': {'translations': {'isocode': elements[0]} } }
             )
         else:
-            isocode = elements.pop(0)
-            if (newlanguage):
-                result = mongodb.db.objects.update_one(
-                    { '_id': ObjectId(_id) },
-                    { '$addToSet': {'translations': {
-                        'isocode': isocode,
-                        'title': elements[0],
-                        'text': elements[1],
-                        'audio': False,
-                        'video': False
-                        }
-                    } },
-                    upsert = True
-                )
-            else:
-                result = mongodb.db.objects.update_one(
-                    {
-                        '_id': ObjectId(_id),
-                        'translations': { '$elemMatch': {'isocode': isocode} }
-                    },{
-                        '$set': {
-                            'id': objid,
-                            'translations.$.title': elements[0],
-                            'translations.$.text': elements[1]
-                        }
-                    },
-                    upsert = False
-                )
+            result = mongodb.db.objects.update_one(
+                {
+                    '_id': ObjectId(_id),
+                    'translations': { '$elemMatch': {'isocode': elements[0]} }
+                },{
+                    '$set': {
+                        'id': objid,
+                        'translations.$.title': elements[1],
+                        'translations.$.text': elements[2]
+                    }
+                },
+                upsert = False
+            )
         if (elements[-1] == 'removeaudio'):
-            del_obj_media(objid, isocode, 'audios')
+            del_obj_media(objid, elements[0], 'audios')
 
     return redirect(url_for('get_object',_id=_id))
 

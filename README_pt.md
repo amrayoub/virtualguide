@@ -81,7 +81,12 @@ Sério? Por que não seria? AngularJS é Software Livre, Ionic também, o Debian
 Espero que possa ajudá-los!
 
 ### TODO:
-- [X] Reescrever a interface web usando Bootstrap 3 (feito!)
-- [ ] Criar uma tela para login ao realizar o Checkin
-- [ ] Adicionar enquete ao sair do aplicativo (feedback para o expositor)
-- [ ] Reescrever o aplicativo usando Ionic2 / AngularJS2
+- [X] Reescrever a interface web usando Bootstrap 3 (feito!) (adminvirt)
+- [X] Criar sistema de autorização e autenticação (feito) (adminvirt)
+- [ ] Criar sistema de plugins para autenticação e autoreização (WiP)
+- [ ] Criar uma tela para login ao realizar o Checkin (mobile_app) (WiP)
+- [ ] Adicionar enquete ao sair do aplicativo (feedback para o expositor) (mobile_app) (WiP)
+- [ ] Reescrever o aplicativo usando Ionic2 / AngularJS2 (mobile_app) (NS)
+
+* WiP: Work in Progress
+* NS: Not Started

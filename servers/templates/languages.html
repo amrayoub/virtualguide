@@ -11,7 +11,7 @@
 <div class="panel panel-default">
 
   <!-- New Language Form -->
-  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLanguage">
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addLanguage" {{disabled}}>
     Add new translation
   </button>
 
@@ -61,7 +61,7 @@
             <div class="modal-footer">
               <div class="btn btn-group">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                <input type="submit" class="btn btn-success" value="Save changes">
+                <input type="submit" class="btn btn-success" value="Save changes" {{disabled}}>
               </div>
             </div>
           </form>
@@ -128,13 +128,13 @@
         <p>
           <div class="btn-group">
             <div class="btn-group dropup">
-              <button class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" id="savebtn" aria-expanded="false">Save</button>
+              <button class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" id="savebtn" aria-expanded="false" {{disabled}}>Save</button>
               <ul class="dropdown-menu" aria-labelledby="savebtn">
                 <li><input type="submit" class="btn btn-sm btn-success btn-block" value="Confirm"></li>
               </ul>
             </div>
             <div class="btn-group dropup">
-              <button class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" id="removebtn" aria-expanded="false">Remove</button>
+              <button class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" id="removebtn" aria-expanded="false" {{disabled}}>Remove</button>
               <ul class="dropdown-menu" aria-labelledby="removebtn">
                 <li>
                   <button class="btn btn-sm btn-block btn-danger" onclick="window.location.href = '{{ url_for('del_language',_id=entry._id) }}'">

@@ -167,20 +167,32 @@
                   <textarea class="form-control" name="translation['+ x.toString() +']" placeholder="Object Text" required></textarea> \
                 </div> \
                 <div class="list-group-item"> \
-                    <label>Audio</label><br> \
-                    <input id="uploadAudio_'+ x.toString() +'" placeholder="Choose File" disabled="disabled"> \
-                    <div class="fileUpload btn btn-sm btn-primary"> \
-                      <span>Browse</span> \
-                      <input id="uploadAudio_Btn_'+ x.toString() +'" type="file" name="audiofile_new" class="upload"> \
-                    </div> \
-                    <br> \
+                  <label>Audio</label><br> \
+                  <input id="uploadAudio_'+ x.toString() +'" placeholder="Choose File" disabled="disabled"> \
+                  <div class="fileUpload btn btn-sm btn-primary"> \
+                    <span>Browse</span> \
+                    <input id="uploadAudio_Btn_'+ x.toString() +'" type="file" name="audiofile_new" class="upload"> \
+                  </div> \
                 </div> \
+                <div class="list-group-item"> \
+                  <label>Video</label><br> \
+                  <input id="uploadVideo_'+ x.toString() +'" placeholder="Choose File" disabled="disabled"> \
+                  <div class="fileUpload btn btn-sm btn-primary"> \
+                    <span>Browse</span> \
+                    <input id="uploadVideo_Btn_'+ x.toString() +'" type="file" name="videofile_new" class="upload"> \
+                  </div> \
+                </div> \
+                <br> \
               </div> \
             </div> \
           </div> ');
 
           document.getElementById("uploadAudio_Btn_" + x.toString()).onchange = function () {
             document.getElementById("uploadAudio_" + x.toString()).value = this.value;
+          };
+
+          document.getElementById("uploadVideo_Btn_" + x.toString()).onchange = function () {
+            document.getElementById("uploadVideo_" + x.toString()).value = this.value;
           };
 
           $('.remove_button').click(function(e) {

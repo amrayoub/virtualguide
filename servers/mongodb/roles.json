@@ -1,0 +1,20 @@
+{
+	"rolename": "admin",
+	"description": "Administrators",
+	"rights": {"all": "rw"}
+}
+{
+	"rolename": "expositor",
+	"description": "Expositores",
+	"rights": {"objects": "rw"}
+}
+{
+	"rolename": "tradutor",
+	"description": "Tradutores",
+	"rights": {"languages":"ro", "translations":"rw"}
+}
+{
+	"rolename": "auditor",
+	"description": "Auditores",
+	"rights": {"main_config": "ro", "languages":"ro", "translations":"ro", "objects":"ro"}
+}

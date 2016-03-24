@@ -1,0 +1,35 @@
+{
+	"username": "admin",
+	"password": "21232f297a57a5a743894a0e4a801fc3",
+	"fullname": "Administrator",
+	"roles": ["admin"],
+	"prefs": []
+}
+{
+	"username": "expositor",
+	"password": "235b42d79f1b3c23f94ccb498cf52007",
+	"fullname": "Expositor",
+	"roles": ["expositor"],
+	"prefs": []
+}
+{
+	"username": "tradutor",
+	"password": "dfc0f6654bcf53c45b3e45d15acd372f",
+	"fullname": "Tradutor",
+	"roles": ["tradutor"],
+	"prefs": []
+}
+{
+	"username": "test",
+	"password": "098f6bcd4621d373cade4e832627b4f6",
+	"fullname": "Test User",
+	"roles": ["tradutor","expositor"],
+	"prefs": []
+}
+{
+	"username": "auditor",
+	"password": "f7d07071ed9431ecae3a8d45b4c82bb2",
+	"fullname": "Auditor",
+	"roles": ["auditor"],
+	"prefs": []
+}

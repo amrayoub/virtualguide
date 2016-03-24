@@ -1,3 +1,9 @@
+{% if access == 'ro' %}
+  {% set disabled = 'disabled' %}
+{% else %}
+{% set disabled = '' %}
+{% endif %}
+
 <!doctype html>
 <head>
   <meta charset="utf-8">
@@ -30,10 +36,8 @@
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        {% if 'all' in session['rights'] or 'home' in session['rights'] %}
         <li><a href="/">Home</a></li>
-        {% endif %}
-
+        
         {% if 'all' in session['rights'] or 'main_config' in session['rights'] %}
         <li><a href="/main_config">Main Configurations</a></li>
         {% endif %}
@@ -61,6 +65,10 @@
 
         {% if 'all' in session['rights'] or 'objects' in session['rights'] %}
         <li><a href="/objects">Objects</a></li>
+        {% endif %}
+
+        {% if 'all' in session['rights'] or 'users' in session['rights'] %}
+        <li><a href="/users">Users</a></li>
         {% endif %}
 
       </ul>

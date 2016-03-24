@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block header %}
-  <link rel="stylesheet" media="screen" type="text/css" href="/static/bootstrap-colorpicker.min.css">
-  <script type="text/javascript" src="/static/bootstrap-colorpicker.min.js"></script>
+  <link rel="stylesheet" media="screen" type="text/css" href="{{url_for('statics', rtype='css', filename='bootstrap-colorpicker.min.css')}}">
+  <script type="text/javascript" src="{{url_for('statics', rtype='js', filename='bootstrap-colorpicker.min.js')}}"></script>
 {% endblock %}
 {% block title %}Main Configuration{% endblock %}
 {% block content %}
@@ -91,7 +91,7 @@
               </div>
             </p>
 
-            <input type="submit" class="btn btn-primary" value="Save">
+            <input type="submit" class="btn btn-primary" value="Save" {{disabled}}>
           </form>
         </div>
         <div class="col-md-4">
@@ -157,7 +157,7 @@
                     document.getElementById("uploadFile-{{name}}").value = this.value;
                   };
                 </script>
-                <input class="btn btn-primary" type="submit" value="Save">
+                <input class="btn btn-primary" type="submit" value="Save" {{disabled}}>
               </form>
             </div>
           </div>
@@ -174,7 +174,7 @@
               <input type="hidden" name="action" value="genkeys">
               <p>Public key:<br>
               <pre>{{certs.pubkey}}</pre>
-              <input class="btn btn-primary" type="submit" value="Generate new RSA 1024 bits key pairs">
+              <input class="btn btn-primary" type="submit" value="Generate new RSA 1024 bits key pairs" {{disabled}}>
             </form>
           </div>
         </div>
