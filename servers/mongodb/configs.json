@@ -1,7 +1,4 @@
 {
-	"_id": {
-		"$oid": "56c862281f756b71febd721e"
-	},
 	"header_color": "#e6e600,#ffff00",
 	"result_limit": "15",
 	"fallbacks": "{u'*': u'pt-br', u'en': u'en-us', u'ja': u'en-us', u'pt': u'pt-br'}",

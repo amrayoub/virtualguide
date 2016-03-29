@@ -1,27 +1,12 @@
 {
-	"_id": {
-		"$oid": "56bb9625f50c0a46b9905475"
-	},
 	"name": "English",
 	"code": "en",
 	"locale": "us",
 	"variant": "American"
 }
 {
-	"_id": {
-		"$oid": "56bb9625f50c0a46b9905477"
-	},
 	"name": "Português",
 	"code": "pt",
 	"locale": "br",
 	"variant": "Brasil"
-}
-{
-	"_id": {
-		"$oid": "56c78684fb5d1b43552ad1b6"
-	},
-	"locale": "jp",
-	"code": "ja",
-	"variant": "日本",
-	"name": "日本語"
 }

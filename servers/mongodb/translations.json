@@ -1,15 +1,12 @@
 {
-	"_id": {
-		"$oid": "56d84f9330cc86e785a0a1a5"
-	},
 	"isocode": "en-us",
 	"START_TAB": {
 		"TAB_TITLE": "Start",
 		"TITLE": "Start",
-		"AVATAR_HEADER": "Cultural Centre",
-		"AVATAR_BODY": "Banco do Brasil",
-		"TEXT_HEADER": "Centro Cultural Banco do Brasil",
-		"TEXT_BODY": "Presents: ComCiência by Patricia Piccinini."
+		"AVATAR_HEADER": "Test Museum",
+		"AVATAR_BODY": "Museum of test city",
+		"TEXT_HEADER": "Welcome to Test Museum",
+		"TEXT_BODY": "Presents: The Test Exhibition for test visitors!"
 	},
 	"SCAN_TAB": {
 		"TAB_TITLE": "Scan",
@@ -34,9 +31,9 @@
 		"TITLE": "History"
 	},
 	"ABOUT_TAB": {
-		"BODY": "\u003ch1\u003eA História\u003c/h1\u003e\r\n\u003cp\u003eO CCBB Brasília localiza-se no Setor de Clubes Sul, Trecho 2 (próximo à ponte JK), no\r\nEdifício Tancredo Neves, projeto de Oscar Niemeyer, inaugurado em 1993 como sede do Centro de Formação do Banco do Brasil.\u003c/p\u003e\r\n\u003cp\u003eNo final da década de 1990, parte do prédio foi reformada para abrigar as instalações do CCBB Brasília, com o objetivo de inserir a capital do País no roteiro internacional dos grandes eventos e produções culturais. Com projeto paisagístico assinado por Alba Rabelo Cunha, o harmonioso conjunto arquitetônico de dois andares está pousado sobre pilotis e divide-se em módulos, cabendo ao CCBB parte do prédio principal.\u003c/p\u003e\r\n\u003cp\u003eInaugurado no dia 12 de outubro de 2000, o CCBB Brasília é a terceira instituição cultural mais visitada no Brasil e a 38º no mundo, de acordo com o ranking da publicação inglesa The Art Newspaper (abril/2014).\r\nO prédio possui uma área construída de aproximadamente 20.551m2. O CCBB ocupa 7.000m2 desse total, além de uma área externa (jardins e estacionamento) com 23.940m2.\u003c/p\u003e\r\n\u003ca href=\"http://www.ccbb.com.br\" target=\"_new\"\u003eAcesse aqui\u003c/a\u003e",
-		"TAB_TITLE": "About CCBB",
-		"TITLE": "About CCBB"
+		"BODY": "<h1>Test Museum</h1><p>This is the about tab and you can put anything here!</p><a href='#link'>even a link</a>",
+		"TAB_TITLE": "About Test Museum",
+		"TITLE": "About Museum"
 	},
 	"LANGUAGE_TAB": {
 		"TAB_TITLE": "Choose language",
@@ -59,77 +56,14 @@
 	}
 }
 {
-	"_id": {
-		"$oid": "56d84f9330cc86e785a0a1a6"
-	},
-	"ABOUT_TAB": {
-		"TAB_TITLE": "約",
-		"TITLE": "約",
-		"BODY": "\u003ch1\u003eA História\u003c/h1\u003e\n\u003cp\u003eO CCBB Brasília localiza-se no Setor de Clubes Sul, Trecho 2 (próximo à ponte JK), no\nEdifício Tancredo Neves, projeto de Oscar Niemeyer, inaugurado em 1993 como sede do Centro de Formação do Banco do Brasil.\u003c/p\u003e\n\u003cp\u003eNo final da década de 1990, parte do prédio foi reformada para abrigar as instalações do CCBB Brasília, com o objetivo de inserir a capital do País no roteiro internacional dos grandes eventos e produções culturais. Com projeto paisagístico assinado por Alba Rabelo Cunha, o harmonioso conjunto arquitetônico de dois andares está pousado sobre pilotis e divide-se em módulos, cabendo ao CCBB parte do prédio principal.\u003c/p\u003e\n\u003cp\u003eInaugurado no dia 12 de outubro de 2000, o CCBB Brasília é a terceira instituição cultural mais visitada no Brasil e a 38º no mundo, de acordo com o ranking da publicação inglesa The Art Newspaper (abril/2014).\nO prédio possui uma área construída de aproximadamente 20.551m2. O CCBB ocupa 7.000m2 desse total, além de uma área externa (jardins e estacionamento) com 23.940m2.\u003c/p\u003e\n\u003ca href=\"http://www.ccbb.com.br\" target=\"_new\"\u003eAcesse aqui\u003c/a\u003e"
-	},
-	"SCAN_TAB": {
-		"BODY": "「スキャン開始」ボタンをクリックして、 QRコードにあなたのデバイスを指すまたはオブジェクトに関する情報を取得するには、以下の検索ボックスにコードを挿入します。",
-		"SEARCH": "サーチ",
-		"TITLE": "QRコードをスキャン",
-		"TAB_TITLE": "スキャン",
-		"TRY_AGAIN": "、もう一度試してください",
-		"UNKNOW_CODE": "不明なコード",
-		"BUTTON_SCAN": "スキャンの開始"
-	},
-	"SEARCH_RESULT": {
-		"VOTES": "",
-		"TITLE": "詳細",
-		"VIEWS": ""
-	},
-	"SUGGESTION_TAB": {
-		"TAB_TITLE": "提案",
-		"TITLE": "提案"
-	},
-	"START_TAB": {
-		"AVATAR_HEADER": "文化センター",
-		"TEXT_BODY": "パトリシア・ピッチニーニによってComCiênciaを：プレゼンツ。",
-		"TITLE": "開始",
-		"TEXT_HEADER": "ブラジル文化センターの銀行",
-		"TAB_TITLE": "開始",
-		"AVATAR_BODY": "バンコ・ブラジルを行います"
-	},
-	"isocode": "ja-jp",
-	"MAIN": {
-		"OK": "Ok",
-		"CONFIRM": "Confirm",
-		"MENU": "Menu JA",
-		"SETUP": "Setup",
-		"PULL_TO_REFRESH": "リフレッシュするためにプル",
-		"EXIT": "出口",
-		"CANCEL": "キャンセル",
-		"SERVER_DETECTED": "信頼されたプロバイダを検出！",
-		"NAVIGATION": "ナビゲーション",
-		"CONFIGURATIONS": "コンフィギュレーション",
-		"ABOUT_APP": "Sobre o aplicativo"
-	},
-	"LANGUAGE_TAB": {
-		"TAB_TITLE": "言語を選択",
-		"VARIANT": "領域",
-		"LANGUAGE": "言語",
-		"TITLE": "言語を選択してください"
-	},
-	"HISTORY_TAB": {
-		"TAB_TITLE": "歴史",
-		"TITLE": "歴史"
-	}
-}
-{
-	"_id": {
-		"$oid": "56d84f9330cc86e785a0a1a7"
-	},
 	"isocode": "pt-br",
 	"START_TAB": {
-		"AVATAR_HEADER": "Centro Cultural Brasília",
+		"AVATAR_HEADER": "Museu de Teste",
 		"TITLE": "Início",
 		"TAB_TITLE": "Início",
-		"TEXT_HEADER": "Centro Cultural Banco do Brasil",
-		"TEXT_BODY": "Apresenta: ComCiência por Patricia Piccinini.",
-		"AVATAR_BODY": "Banco do Brasil"
+		"TEXT_HEADER": "Museu de Teste",
+		"TEXT_BODY": "Apresenta: Uma exposição de teste",
+		"AVATAR_BODY": "Museu de Teste"
 	},
 	"SCAN_TAB": {
 		"TAB_TITLE": "Capturar",
@@ -154,9 +88,9 @@
 		"TITLE": "Histórico"
 	},
 	"ABOUT_TAB": {
-		"TAB_TITLE": "Sobre o CCBB",
-		"TITLE": "Sobre o CCBB",
-		"BODY": "\u003ch1\u003eA História\u003c/h1\u003e\n\u003cp\u003eO CCBB Brasília localiza-se no Setor de Clubes Sul, Trecho 2 (próximo à ponte JK), no\nEdifício Tancredo Neves, projeto de Oscar Niemeyer, inaugurado em 1993 como sede do Centro de Formação do Banco do Brasil.\u003c/p\u003e\n\u003cp\u003eNo final da década de 1990, parte do prédio foi reformada para abrigar as instalações do CCBB Brasília, com o objetivo de inserir a capital do País no roteiro internacional dos grandes eventos e produções culturais. Com projeto paisagístico assinado por Alba Rabelo Cunha, o harmonioso conjunto arquitetônico de dois andares está pousado sobre pilotis e divide-se em módulos, cabendo ao CCBB parte do prédio principal.\u003c/p\u003e\n\u003cp\u003eInaugurado no dia 12 de outubro de 2000, o CCBB Brasília é a terceira instituição cultural mais visitada no Brasil e a 38º no mundo, de acordo com o ranking da publicação inglesa The Art Newspaper (abril/2014).\nO prédio possui uma área construída de aproximadamente 20.551m2. O CCBB ocupa 7.000m2 desse total, além de uma área externa (jardins e estacionamento) com 23.940m2.\u003c/p\u003e\n\u003ca href=\"http://www.ccbb.com.br\" target=\"_new\"\u003eAcesse aqui\u003c/a\u003e"
+		"TAB_TITLE": "Sobre o Museu",
+		"TITLE": "Sobre o Museu de Teste",
+		"BODY": "<h1>Museu de Teste</h1><p>Esta é a aba sobre o museu</p>Você pode inserir qualquer coisa aqui <a href='#link'>até um link</a>"
 	},
 	"LANGUAGE_TAB": {
 		"TAB_TITLE": "Idioma",
