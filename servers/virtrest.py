@@ -54,23 +54,22 @@ virtualrest.config['MONGO_REPLICA_SET'] = MONGO_REPLICA_SET
 mongodb = PyMongo(virtualrest)
 
 def lang_parse(isocode):
-    if (isocode is not None):
-        isocode = isocode.lower().replace('_','-')
+    lang_regex = search('^([A-Za-z]{2}(-|_)[A-Za-z]{2}|[a-z]{2})$',isocode)
+    if (lang_regex is not None):
+        lang = lang_regex.group(0).lower().replace('_','-')
+    elif ('*' in fallback.keys()):
+        return fallback['*']
     else:
         return None
-    lang_regex = search('^([a-z]{2}-[a-z]{2}|[a-z]{2})$',isocode)
-    lang = lang_regex.group(0)
-    if (lang_regex is None):
-        return None
-    if (lang in fallback.keys()):
-        return fallback[lang]
-    search_result = mongodb.db.translations.find({'isocode': lang},{'_id':0,'isocode':1})
-    if (search_result.count() < 1):
+    search_result = mongodb.db.translations.find_one({'isocode': lang},{'_id':0,'isocode':1})
+    if (search_result is None):
         if (lang[:2] in fallback.keys()):
             return fallback[lang[:2]]
-        else:
-            return None
-    return lang
+        elif ('*' in fallback.keys()):
+            return fallback['*']
+    else:
+        return search_result['isocode']
+    return None
 
 def output_json(obj, code, headers=None):
     resp = make_response(dumps(obj), code)
