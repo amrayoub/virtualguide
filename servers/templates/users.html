@@ -9,38 +9,49 @@
 {% block content %}
 {% if 'all' in session['rights'] or 'languages' in session['rights'] %}
 <div class="panel panel-default">
-
-<div class="row">
+<p>Users list</p>
+<table class="table table-bordered table-hover">
+  <thread>
+  <tr>
+    <th>Username</th>
+    <th>Fullname</th>
+    <th>Roles</th>
+  </tr>
+  </thread>
+  <tbody>
   {% for user in users %}
-  <div class="col-md-4">
-    <div class="list-group">
-      <div class="list-group-item list-group-item-success">
-        <label>Username</label><input type="text" class="form-control" value="{{user.username}}">
-      </div>
-      <div class="list-group-item">
-        <label>Full Name</label><input type="text" class="form-control" value="{{user.fullname}}">
-      </div>
-      <div class="list-group-item">
-        <label>Change Password:</label><input type="password" class="form-control">
-        <label>Repeat Password:</label><input type="password" class="form-control">
-      </div>
-      {% for role in roles %}
-      <div class="list-group-item">
-        {% for userrole in user.roles %}
-        <div class="checkbox">
-        {% if userrole == role.rolename %}
-          <label><input type="checkbox" value="{{role.rolename}}" checked>{{role.description}}</label>
-        {% else %}
-        <label><input type="checkbox" value="{{role.rolename}}">{{role.description}}</label>
-        {% endif %}
-        </div>
-        {% endfor %}
-      </div>
-      {% endfor %}
-    </div>
-  </div>
+  <tr>
+    <td><a href="#{{user._id}}">{{user.username}}</a></td>
+    <td>{{user.fullname}}</td>
+    <td>{{user.roles|join(', ')}}</td>
+  </tr>
   {% endfor %}
-</div>
+  </tbody>
+</table>
+
+<p>Roles list</p>
+<table class="table table-bordered table-hover">
+  <thread>
+  <tr>
+    <th>Role</th>
+    <th>Description</th>
+    <th>Rights</th>
+  </tr>
+  </thread>
+  <tbody>
+  {% for role in roles %}
+  <tr>
+    <td><a href="#{{role._id}}">{{role.rolename}}</a></td>
+    <td>{{role.description}}</td>
+    <td>
+    {% for right in role.rights %}
+      {{right}}: "{{role.rights[right]}}"<br>
+    {% endfor %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
 
 </div>
 {% else %}

@@ -55,6 +55,10 @@ A idéia central é utilizar um aplicativo único para qualquer exposição, sej
  1. O servidor REST valida as requisições, consulta o banco de dados e devolve uma resposta;
 5. O aplicativo mostra os dados recebidos pelo servidor (texto, foto, audio e video)
 
+### Screenshots
+
+![]()
+
 ### FAQ
 **Por que utilizar um banco NoSQL?**
 

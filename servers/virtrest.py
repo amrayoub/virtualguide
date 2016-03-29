@@ -392,7 +392,6 @@ if __name__ == '__main__':
             cert_file = config.get('MAIN', 'ssl_cert_file')
             key_file = config.get('MAIN', 'ssl_key_file')
             localport = config.getint('MAIN', 'ssl_port')
-            print(cert_file, key_file)
             http_server = WSGIServer((localaddress, localport), virtualrest, keyfile=key_file, certfile=cert_file)
         else:
             http_server = WSGIServer((localaddress, localport), virtualrest)
