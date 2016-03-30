@@ -272,23 +272,99 @@ def login():
             session['user'] = {'username': auth_return['username'], 'fullname': auth_return['fullname']}
             session['rights'] = auth_return['rights']
             return redirect(url_for('index'))
+        else:
+            flash('Invalid Username or Password','danger')
     return render_template('login.html')
 
 @virtualrest.route('/logout')
 def logout():
     session.pop('logged_in', None)
     session.pop('username', None)
-    flash('Logged out')
     return redirect(url_for('login'))
 
-@virtualrest.route('/users')
+@virtualrest.route('/users', methods = ['GET', 'POST'] )
 def users():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
     check_access('users')
+    if (request.method == 'POST'):
+        for user in request.form.getlist('user'):
+             mongodb.db.users.delete_one({'username': user})
     users = copy_cursor( mongodb.db.users.find({}, sort=([('username',1)]) ) )
     roles = copy_cursor( mongodb.db.roles.find({}, sort=([('rolename',1)]) ) )
     return render_template('users.html', users=users, roles=roles)
+
+@virtualrest.route('/edituser/<userid>', methods = ['GET','POST'])
+def edituser(userid):
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    if (check_access('users') != 'rw'):
+        abort(403)
+
+    if (request.method == 'POST'):
+        if (len(request.form['password']) > 5):
+            user_json = {
+                'username': request.form['username'],
+                'fullname': request.form['fullname'],
+                'prefs': [],
+                'password': hashlib.md5(request.form['password']).hexdigest(),
+                'roles': request.form.getlist('roles')
+            }
+        else:
+            user_json = {
+                'username': request.form['username'],
+                'fullname': request.form['fullname'],
+                'prefs': [],
+                'roles': request.form.getlist('roles')
+            }
+
+        result = mongodb.db.users.update_one( {'_id': ObjectId(request.form['_id'])}, {'$set': user_json } ).raw_result
+        if ( result['ok'] > 0):
+            flash(u'Changes saved!', 'success')
+        else:
+            flash(u'Changes not saved!', 'danger')
+
+    user = mongodb.db.users.find_one({'_id': ObjectId(userid)}, {'password': 0})
+    roles = copy_cursor( mongodb.db.roles.find({}, sort=([('rolename',1)]) ) )
+    return render_template('user_detail.html', user=user, roles=roles)
+
+@virtualrest.route('/copyuser/<userid>', methods = ['GET','POST'])
+def copyuser(userid):
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    if (check_access('users') != 'rw'):
+        abort(403)
+
+    if (request.method == 'POST'):
+       user_json = {
+            'username': request.form['username'],
+            'fullname': request.form['fullname'],
+            'prefs': [],
+            'password': hashlib.md5(request.form['password']).hexdigest(),
+            'roles': request.form.getlist('roles')
+        }
+
+       result = mongodb.db.users.update_one( {'username': request.form['username']}, {'$set': user_json }, upsert = True ).raw_result
+       if ( result['ok'] > 0):
+           flash(u'User created!', 'success')
+       else:
+           flash(u'User creation failed!', 'danger')
+
+    user = mongodb.db.users.find_one({'_id': ObjectId(userid)}, {'password': 0})
+    roles = copy_cursor( mongodb.db.roles.find({}, sort=([('rolename',1)]) ) )
+    user['username'] = 'newuser'
+    return render_template('user_detail.html', user=user, roles=roles)
+
+
+@virtualrest.route('/deluser/<userid>', methods = ['GET','POST'])
+def deluser(userid):
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    if (check_access('users') != 'rw'):
+        abort(403)
+    mongodb.db.users.delete_one({'_id': ObjectId(userid)})
+    return redirect(url_for('users'))
+
 
 @virtualrest.route('/languages')
 def languages():
@@ -300,7 +376,7 @@ def languages():
     isolanguages = copy_cursor(mongodb.db.isolanguages.find({}, {'_id': 0}, sort=([('English',1)])))
     return render_template('languages.html', access=access, languages=search_result, isocountries=isocountries, isolanguages=isolanguages)
 
-@virtualrest.route('/change_languages',methods=['POST'])
+@virtualrest.route('/change_languages', methods = ['POST'])
 def change_language():
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
@@ -323,7 +399,6 @@ def del_language(_id):
         abort(403)
 
     result = mongodb.db.languages.delete_one({'_id': ObjectId(_id)})
-    flash('Language deleted!')
     return redirect(url_for('languages'))
 
 @virtualrest.route('/add_language', methods=['POST'])
@@ -335,7 +410,6 @@ def add_language():
 
     result = to_dict(request.form)
     mongodb.db.languages.insert_one(result)
-    flash('Language added!')
     return redirect(url_for('languages'))
 
 @virtualrest.route('/translations/<code>-<locale>')
@@ -367,7 +441,6 @@ def change_translation(isocode,tab):
         { 'isocode': isocode},
         { '$set': { tab: changes } }
     )
-    flash('Changes saved!')
     return redirect(url_for('translations',_anchor='tab-'+tab, code=isocode[:2],locale=isocode[3:]))
 
 @virtualrest.route('/main_config', methods=['GET','POST'])
@@ -446,7 +519,6 @@ def upload_file(filename):
         fs.delete(oldfile._id)
     oid = fs.put(contents, content_type=file.content_type, filename=filename + '.png')
     del(contents)
-    flash('File Uploaded!')
     return redirect(url_for('main_config'))
 
 @virtualrest.route('/setupcode')

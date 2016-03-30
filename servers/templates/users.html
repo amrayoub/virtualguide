@@ -9,10 +9,18 @@
 {% block content %}
 {% if 'all' in session['rights'] or 'languages' in session['rights'] %}
 <div class="panel panel-default">
-<p>Users list</p>
+
+<div>
+<form action="" method="POST" role="users">
 <table class="table table-bordered table-hover">
   <thread>
   <tr>
+    <th colspan="4" style="background-color: #eee; text-align: center;"><h4>Users list</h4></th>
+  </tr>
+  <tr>
+    <th width="150px">
+      <input type="checkbox" onchange="$('.cbox').prop('checked', $(this).prop('checked'));"> Actions
+    </th>
     <th>Username</th>
     <th>Fullname</th>
     <th>Roles</th>
@@ -21,17 +29,31 @@
   <tbody>
   {% for user in users %}
   <tr>
-    <td><a href="#{{user._id}}">{{user.username}}</a></td>
+    <td>
+        {% if user.username != session.user['username'] %}
+        <input type="checkbox" name="user" value="{{user.username}}" class="cbox">
+        <a href="{{ url_for('deluser', userid=user._id) }}" class="btn btn-sm btn-danger" title="Remove User"><span class="glyphicon glyphicon-remove"></span></a>
+        {% endif %}
+        <a href="{{ url_for('edituser', userid=user._id) }}" class="btn btn-sm btn-primary" title="Edit User"><span class="glyphicon glyphicon-pencil"></span></a>
+        <a href="{{ url_for('copyuser', userid=user._id) }}" class="btn btn-sm btn-primary" title="Duplicate User"><span class="glyphicon glyphicon-duplicate"></span></a>
+    </td>
+    <td><a href="{{ url_for('edituser', userid=user._id) }}">{{user.username}}</a></td>
     <td>{{user.fullname}}</td>
     <td>{{user.roles|join(', ')}}</td>
   </tr>
   {% endfor %}
   </tbody>
 </table>
+<input type="submit" class="btn btn-danger" value="Delete Selected">
+</form>
+</div>
 
-<p>Roles list</p>
+<div>
 <table class="table table-bordered table-hover">
   <thread>
+  <tr>
+    <th colspan="4" style="background-color: #eee; text-align: center;"><h4>Roles list</h4></th>
+  </tr>
   <tr>
     <th>Role</th>
     <th>Description</th>
@@ -52,6 +74,7 @@
   {% endfor %}
   </tbody>
 </table>
+</div>
 
 </div>
 {% else %}

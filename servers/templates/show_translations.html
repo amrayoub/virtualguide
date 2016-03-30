@@ -29,7 +29,11 @@
   <ul class="nav nav-tabs" role="tablist">
     {% for tab in translations %}
       {% if tab != 'isocode' %}
+        {% if tab == 'MAIN' %}
+    <li><a href="#tab-{{tab}}" aria-controls="tab-{{tab}}" role="tab" data-toggle="tab">Main Texts</a></li>
+        {% else %} 
     <li><a href="#tab-{{tab}}" aria-controls="tab-{{tab}}" role="tab" data-toggle="tab">{{translations[tab]['TITLE']}}</a></li>
+        {% endif %}
       {% endif %}
     {% endfor %}
   </ul>
