@@ -6,20 +6,22 @@ from gevent import monkey
 monkey.patch_all()
 
 import hashlib
-import mimetypes
 import ConfigParser
 from re import search
 from time import time
+from os import urandom
 from M2Crypto import RSA
 from gridfs import GridFS
 from ast import literal_eval
 from base64 import b64decode
 from StringIO import StringIO
 from bson.json_util import dumps
+from mimetypes import guess_type
 from gevent.wsgi import WSGIServer
 from flask.ext.pymongo import PyMongo
 from pymongo import database, MongoClient, ReturnDocument
 from flask import Flask, make_response, abort, request, session, Response, stream_with_context
+
 
 config = ConfigParser.SafeConfigParser({
     'host': '127.0.0.1',
@@ -27,12 +29,15 @@ config = ConfigParser.SafeConfigParser({
     'dbname': 'virtualrest',
     'user': None,
     'passwd': None,
-    'replicaset': None
+    'replicaset': None,
+    'local_port': 5000,
+    'local_address': '0.0.0.0'
 })
 
 config.read('./virtrest.cfg')
-virtualrest = Flask(__name__)
 
+virtualrest = Flask(__name__)
+    
 MONGO_HOST = config.get('MONGODB', 'host')
 MONGO_PORT = int(config.get('MONGODB', 'port'))
 MONGO_DBNAME = config.get('MONGODB', 'dbname')
@@ -42,7 +47,7 @@ MONGO_REPLICA_SET = config.get('MONGODB', 'replicaset')
 GRIDFS_HOST = config.get('GRIDFS', 'host')
 GRIDFS_PORT = int(config.get('GRIDFS', 'port'))
 
-virtualrest.config['SECRET_KEY'] = 'KKkjhdfg985#@s9865kjghfkjdhABLABS765765765';
+virtualrest.config['SECRET_KEY'] = urandom(64)
 
 virtualrest.config['MONGO_HOST'] = MONGO_HOST
 virtualrest.config['MONGO_PORT'] = MONGO_PORT
@@ -108,7 +113,7 @@ def get_file(rtype,filename):
         file = fs.get_last_version(filename)
         file_length = file.length
         chunk_length = file_length
-        mime = mimetypes.guess_type(filename)[0]
+        mime = guess_type(filename)[0]
 
         range_header = False
         if ('Range' in request.headers.keys()):
@@ -372,6 +377,8 @@ def default_page():
     abort(404)
 
 if __name__ == '__main__':
+
+
     with virtualrest.app_context():
         configs = mongodb.db.configs.find({},{'_id':0})[0]
         fallback = literal_eval(configs['fallbacks'])
@@ -383,15 +390,14 @@ if __name__ == '__main__':
         'Access-Control-Max-Age': 86400,
         'Access-Control-Allow-Credentials': True,
     }
-    localport = config.getint('MAIN', 'rest_local_port')
+    localport = config.getint('MAIN', 'local_port')
     localaddress = config.get('MAIN', 'local_address')
-    if (config.getboolean('MAIN', 'debug') and not config.getboolean('MAIN', 'use_ssl')):
+    if (config.getboolean('MAIN', 'debug')):
         virtualrest.run(host=localaddress,port=localport, debug=True)
     else:
         if (config.getboolean('MAIN', 'use_ssl')):
             cert_file = config.get('MAIN', 'ssl_cert_file')
             key_file = config.get('MAIN', 'ssl_key_file')
-            localport = config.getint('MAIN', 'ssl_port')
             http_server = WSGIServer((localaddress, localport), virtualrest, keyfile=key_file, certfile=cert_file)
         else:
             http_server = WSGIServer((localaddress, localport), virtualrest)

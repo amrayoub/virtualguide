@@ -12,6 +12,7 @@ import ConfigParser
 from PIL import Image
 from time import time
 from re import search
+from os import urandom
 from gridfs import GridFS
 from StringIO import StringIO
 from colorthief import ColorThief
@@ -31,9 +32,11 @@ config = ConfigParser.SafeConfigParser({
     'passwd': None,
     'replicaset': None,
     'debug': False,
+    'local_address': '0.0.0.0',
+    'local_port': 8080
 })
 
-config.read('./virtrest.cfg')
+config.read('./adminvirt.cfg')
 
 mediatypes = {
     'images': {'db': 'images', 'ext': '.png'},
@@ -44,7 +47,7 @@ mediatypes = {
 
 virtualrest = Flask(__name__)
 
-virtualrest.config['SECRET_KEY'] = 'KKH887687very*&&$$#@secret___)(*)(*8098___keyBLABLABS765765765';
+virtualrest.config['SECRET_KEY'] = urandom(64)
 
 MONGO_HOST = config.get('MONGODB', 'host')
 MONGO_PORT = config.getint('MONGODB', 'port')
@@ -288,8 +291,12 @@ def users():
         return redirect(url_for('login'))
     check_access('users')
     if (request.method == 'POST'):
-        for user in request.form.getlist('user'):
-             mongodb.db.users.delete_one({'username': user})
+        users_to_remove = request.form.getlist('user')
+        roles_to_remove = request.form.getlist('role')
+        if (len(users_to_remove) > 0):
+            mongodb.db.users.delete_many({'username': {'$in': users_to_remove} })
+        if (len(roles_to_remove) > 0):
+            mongodb.db.roles.delete_one({'rolename': {'$in': roles_to_remove} })
     users = copy_cursor( mongodb.db.users.find({}, sort=([('username',1)]) ) )
     roles = copy_cursor( mongodb.db.roles.find({}, sort=([('rolename',1)]) ) )
     return render_template('users.html', users=users, roles=roles)
@@ -364,6 +371,31 @@ def deluser(userid):
         abort(403)
     mongodb.db.users.delete_one({'_id': ObjectId(userid)})
     return redirect(url_for('users'))
+
+@virtualrest.route('/editrole/<roleid>', methods = ['GET','POST'])
+def editrole(roleid):
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    if (check_access('users') != 'rw'):
+        abort(403)
+
+    if (request.method == 'POST'):
+        role_json = {
+            'rolename': request.form['rolename'],
+            'description': request.form['description'],
+            'rights': {}
+        }
+        #for right in request.form
+
+        result = mongodb.db.users.update_one( {'_id': ObjectId(request.form['_id'])}, {'$set': user_json } ).raw_result
+        if ( result['ok'] > 0):
+            flash(u'Changes saved!', 'success')
+        else:
+            flash(u'Changes not saved!', 'danger')
+
+    user = mongodb.db.users.find_one({'_id': ObjectId(userid)}, {'password': 0})
+    roles = copy_cursor( mongodb.db.roles.find({}, sort=([('rolename',1)]) ) )
+    return render_template('user_detail.html', user=user, roles=roles)
 
 
 @virtualrest.route('/languages')
@@ -743,9 +775,9 @@ def statics(rtype,filename):
         abort(404)
 
 if __name__ == '__main__':
-    localport = config.getint('MAIN', 'admin_local_port')
     localaddress = config.get('MAIN', 'local_address')
-    if (config.getboolean('MAIN', 'debug') and not config.getboolean('MAIN', 'use_ssl')):
+    localport = config.getint('MAIN', 'local_port')
+    if (config.getboolean('MAIN', 'debug') ):
         virtualrest.run(host=localaddress,port=localport, debug=True)
     else:
         if (config.getboolean('MAIN', 'use_ssl')):
