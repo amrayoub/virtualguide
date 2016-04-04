@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+{% block header %}
+  <link rel="stylesheet" type="text/css" href="{{url_for('statics', rtype='css', filename='select2.min.css')}}">
+  <script src="{{url_for('statics', rtype='js', filename='select2.min.js')}}"></script>
+{% endblock %}
+
+{% block title %}Languages{% endblock %}
+{% block content %}
+{% if 'all' in session['rights'] or 'languages' in session['rights'] %}
+<div class="panel panel-default">
+
+<div>
+<a href="{{url_for('newrole',roleid='0')}}" class="btn btn-primary">Create new role</a>
+<form action="" method="POST" role="users">
+<table class="table table-bordered table-hover">
+  <thread>
+  <tr>
+    <th colspan="5" style="background-color: #eee; text-align: center;"><h4>Roles list</h4></th>
+  </tr>
+  <tr>
+    <th>
+      <input type="checkbox" onchange="$('.role_cbox').prop('checked', $(this).prop('checked'));"> Actions
+    </th>
+    <th>Role name</th>
+    <th>Description</th>
+    <th>Members</th>
+    <th>
+      <table width="100%">
+        <tr>
+          <td width="60%">Rights</td>
+          <td width="30px" align="center">Read</td>
+          <td width="30px" align="center">Write</td>
+        </tr>
+      </table>
+    </th>
+  </tr>
+  </thread>
+  <tbody>
+  {% for role in roles %}
+  <tr>
+    <td width="150px" style="vertical-align: middle;">
+      <input type="checkbox" class="role_cbox" value="{{role.rolename}}" name="role">
+      <a href="{{url_for('delrole',roleid=role._id)}}" class="btn btn-sm btn-danger" title="Remove Role"><span class="glyphicon glyphicon-remove"></span></a>
+      <a href="{{url_for('editrole',roleid=role._id)}}" class="btn btn-sm btn-primary" title="Edit Role"><span class="glyphicon glyphicon-pencil"></span></a>
+      <a href="{{url_for('newrole',roleid=role._id)}}" class="btn btn-sm btn-primary" title="Duplicate Role"><span class="glyphicon glyphicon-duplicate"></span></a>
+    </td>
+    <td style="vertical-align: middle;"><a href="{{url_for('editrole',roleid=role._id)}}">{{role.rolename}}</a></td>
+    <td style="vertical-align: middle;">{{role.description}}</td>
+    <td style="vertical-align: middle;">
+      {% for user in users %}
+       {% for user_role in user.roles %}
+        {% if user_role == role.rolename %}
+         <a href="{{url_for('edituser',userid=user._id)}}">{{user.username}}</a><br>
+        {% endif %}
+       {% endfor %}
+      {% endfor %}
+    </td>
+    <td>
+    {% for right in role.rights %}
+      <table width="100%"><tr>
+        <td width="60%">{{right}}</td>
+        <td width="30px" style="vertical-align: middle; text-align: center;">
+          {% if role.rights[right] == 'ro' %}
+          <span class="glyphicon glyphicon-ok"></span>
+          {% else %}
+          <span class="glyphicon glyphicon-minus"></span>
+          {% endif %}
+        </td>
+        <td width="30px" align="center">
+          {% if role.rights[right] == 'rw' %}
+          <span class="glyphicon glyphicon-ok"></span>
+          {% else %}
+          <span class="glyphicon glyphicon-minus"></span>
+          {% endif %}
+        </td>
+      </tr></table>
+    {% endfor %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<input type="submit" class="btn btn-danger" value="Delete Selected">
+</form>
+</div>
+
+</div>
+{% else %}
+<div class="alert alert-danger" align="center" style="max-width: 400px;">
+  <p>You don't have permission to view this page.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -71,6 +71,9 @@ virtualrest.jinja_env.lstrip_blocks = True
 
 mongodb = PyMongo(virtualrest)
 
+# Users rights
+rights = ['all', 'main_config', 'translations', 'languages', 'objects']
+
 # Code is Language Code - ISO 639-1 (EN, FR, ES, PT,  etc)
 # Locale is Counyry Code - ISO 3166-1 (US,CA, AR, etc)
 # Code + Locale = en-us / en-ca / en-uk / pt-br / etc
@@ -295,11 +298,8 @@ def users():
         roles_to_remove = request.form.getlist('role')
         if (len(users_to_remove) > 0):
             mongodb.db.users.delete_many({'username': {'$in': users_to_remove} })
-        if (len(roles_to_remove) > 0):
-            mongodb.db.roles.delete_one({'rolename': {'$in': roles_to_remove} })
     users = copy_cursor( mongodb.db.users.find({}, sort=([('username',1)]) ) )
-    roles = copy_cursor( mongodb.db.roles.find({}, sort=([('rolename',1)]) ) )
-    return render_template('users.html', users=users, roles=roles)
+    return render_template('users.html', users=users)
 
 @virtualrest.route('/edituser/<userid>', methods = ['GET','POST'])
 def edituser(userid):
@@ -330,13 +330,14 @@ def edituser(userid):
             flash(u'Changes saved!', 'success')
         else:
             flash(u'Changes not saved!', 'danger')
+        return redirect(url_for('users'))
 
     user = mongodb.db.users.find_one({'_id': ObjectId(userid)}, {'password': 0})
     roles = copy_cursor( mongodb.db.roles.find({}, sort=([('rolename',1)]) ) )
     return render_template('user_detail.html', user=user, roles=roles)
 
-@virtualrest.route('/copyuser/<userid>', methods = ['GET','POST'])
-def copyuser(userid):
+@virtualrest.route('/newuser/<userid>', methods = ['GET','POST'])
+def newuser(userid):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
     if (check_access('users') != 'rw'):
@@ -356,8 +357,10 @@ def copyuser(userid):
            flash(u'User created!', 'success')
        else:
            flash(u'User creation failed!', 'danger')
-
-    user = mongodb.db.users.find_one({'_id': ObjectId(userid)}, {'password': 0})
+    if (len(userid) != 12):
+        user = {'username': '', 'fullname': '', 'roles': []}
+    else:
+        user = mongodb.db.users.find_one({'_id': ObjectId(userid)}, {'password': 0})
     roles = copy_cursor( mongodb.db.roles.find({}, sort=([('rolename',1)]) ) )
     user['username'] = 'newuser'
     return render_template('user_detail.html', user=user, roles=roles)
@@ -372,6 +375,58 @@ def deluser(userid):
     mongodb.db.users.delete_one({'_id': ObjectId(userid)})
     return redirect(url_for('users'))
 
+@virtualrest.route('/roles', methods = ['GET', 'POST'] )
+def roles():
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    check_access('users')
+    if (request.method == 'POST'):
+        users_to_remove = request.form.getlist('user')
+        roles_to_remove = request.form.getlist('role')
+        if (len(roles_to_remove) > 0):
+            mongodb.db.roles.delete_one({'rolename': {'$in': roles_to_remove} })
+    users = copy_cursor( mongodb.db.users.find({}, sort=([('username',1)]) ) )
+    roles = copy_cursor( mongodb.db.roles.find({}, sort=([('rolename',1)]) ) )
+    return render_template('roles.html', users=users, roles=roles)
+
+@virtualrest.route('/newrole/<roleid>', methods = ['GET','POST'])
+def newrole(roleid):
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    if (check_access('users') != 'rw'):
+        abort(403)
+
+    if (request.method == 'POST'):
+       role_json = {
+            'rolename': request.form['rolename'],
+            'description': request.form['description'],
+            'rights': {}
+        }
+
+       for right in rights:
+           role_json['rights'][right] = request.form[right]
+
+       result = mongodb.db.roles.update_one( {'rolename': request.form['rolename']}, {'$set': role_json }, upsert = True ).raw_result
+       if ( result['ok'] > 0):
+           flash(u'Role created!', 'success')
+       else:
+           flash(u'Role creation failed!', 'danger')
+    if (len(roleid) != 12):
+        role = {'rolename': '', 'description': '', 'rights': {}}
+    else:
+        role = mongodb.db.roles.find_one({'_id': ObjectId(roleid)})
+    role['rolename'] = 'newrole'
+    return render_template('role_details.html', role=role, rights=rights)
+
+@virtualrest.route('/delrole/<roleid>', methods = ['GET','POST'])
+def delrole(roleid):
+    if (not session.get('logged_in')):
+        return redirect(url_for('login'))
+    if (check_access('users') != 'rw'):
+        abort(403)
+    mongodb.db.roles.delete_one({'_id': ObjectId(roleid)})
+    return redirect(url_for('roles'))
+
 @virtualrest.route('/editrole/<roleid>', methods = ['GET','POST'])
 def editrole(roleid):
     if (not session.get('logged_in')):
@@ -385,17 +440,17 @@ def editrole(roleid):
             'description': request.form['description'],
             'rights': {}
         }
-        #for right in request.form
+        for right in rights:
+            role_json['rights'][right] = request.form[right]
 
-        result = mongodb.db.users.update_one( {'_id': ObjectId(request.form['_id'])}, {'$set': user_json } ).raw_result
+        result = mongodb.db.roles.update_one( {'_id': ObjectId(request.form['_id'])}, {'$set': role_json } ).raw_result
         if ( result['ok'] > 0):
             flash(u'Changes saved!', 'success')
         else:
             flash(u'Changes not saved!', 'danger')
 
-    user = mongodb.db.users.find_one({'_id': ObjectId(userid)}, {'password': 0})
-    roles = copy_cursor( mongodb.db.roles.find({}, sort=([('rolename',1)]) ) )
-    return render_template('user_detail.html', user=user, roles=roles)
+    role = mongodb.db.roles.find_one({'_id': ObjectId(roleid)})
+    return render_template('role_details.html', role=role, rights=rights)
 
 
 @virtualrest.route('/languages')

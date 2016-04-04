@@ -12,6 +12,7 @@
 
 <div>
 <form action="" method="POST" role="users">
+<a class="btn btn-primary" href="{{url_for('newuser', userid='0')}}">Create new user</a>
 <table class="table table-bordered table-hover">
   <thread>
   <tr>
@@ -35,7 +36,7 @@
       <a href="{{ url_for('deluser', userid=user._id) }}" class="btn btn-sm btn-danger" title="Remove User"><span class="glyphicon glyphicon-remove"></span></a>
       {% endif %}
       <a href="{{ url_for('edituser', userid=user._id) }}" class="btn btn-sm btn-primary" title="Edit User"><span class="glyphicon glyphicon-pencil"></span></a>
-      <a href="{{ url_for('copyuser', userid=user._id) }}" class="btn btn-sm btn-primary" title="Duplicate User"><span class="glyphicon glyphicon-duplicate"></span></a>
+      <a href="{{ url_for('newuser', userid=user._id) }}" class="btn btn-sm btn-primary" title="Duplicate User"><span class="glyphicon glyphicon-duplicate"></span></a>
     </td>
     <td><a href="{{ url_for('edituser', userid=user._id) }}">{{user.username}}</a></td>
     <td>{{user.fullname}}</td>
@@ -43,71 +44,6 @@
   </tr>
   {% endfor %}
   <tr>
-  </tbody>
-</table>
-<input type="submit" class="btn btn-danger" value="Delete Selected">
-</form>
-</div>
-
-<p></p>
-<div>
-<form action="" method="POST" role="users">
-<table class="table table-bordered table-hover">
-  <thread>
-  <tr>
-    <th colspan="4" style="background-color: #eee; text-align: center;"><h4>Roles list</h4></th>
-  </tr>
-  <tr>
-    <th>
-      <input type="checkbox" onchange="$('.role_cbox').prop('checked', $(this).prop('checked'));"> Actions
-    </th>
-    <th>Role name</th>
-    <th>Description</th>
-    <th>
-      <table width="100%">
-        <tr>
-          <td width="60%">Right</td>
-          <td width="30px" align="center">Read</td>
-          <td width="30px" align="center">Write</td>
-        </tr>
-      </table>
-    </th>
-  </tr>
-  </thread>
-  <tbody>
-  {% for role in roles %}
-  <tr>
-    <td width="150px" style="vertical-align: middle;">
-      <input type="checkbox" class="role_cbox" value="{{role.rolename}}" name="role">
-      <a href="#" class="btn btn-sm btn-danger" title="Remove Role"><span class="glyphicon glyphicon-remove"></span></a>
-      <a href="#" class="btn btn-sm btn-primary" title="Edit Role"><span class="glyphicon glyphicon-pencil"></span></a>
-      <a href="#" class="btn btn-sm btn-primary" title="Duplicate Role"><span class="glyphicon glyphicon-duplicate"></span></a>
-    </td>
-    <td style="vertical-align: middle;"><a href="#{{role._id}}">{{role.rolename}}</a></td>
-    <td style="vertical-align: middle;">{{role.description}}</td>
-    <td>
-    {% for right in role.rights %}
-      <table width="100%"><tr>
-        <td width="60%">{{right}}</td>
-        <td width="30px" style="vertical-align: middle; text-align: center;">
-          {% if role.rights[right] == 'ro' %}
-          <span class="glyphicon glyphicon-ok"></span>
-          {% else %}
-          <span class="glyphicon glyphicon-minus"></span>
-          {% endif %}
-        </td>
-        <td width="30px" align="center">
-          {% if role.rights[right] == 'rw' %}
-          <span class="glyphicon glyphicon-ok"></span>
-          {% else %}
-          <span class="glyphicon glyphicon-minus"></span>
-          {% endif %}
-        </td>
-      </tr></table>
-    {% endfor %}
-    </td>
-  </tr>
-  {% endfor %}
   </tbody>
 </table>
 <input type="submit" class="btn btn-danger" value="Delete Selected">
