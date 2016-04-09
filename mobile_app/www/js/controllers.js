@@ -70,7 +70,7 @@ angular.module('starter.controllers', ['ngCordova','ui.router'])
   }
   $scope.media = {
     audio: RestServer + '/audios/' + Preflanguage + '-' + $scope.barcode[0].id + '.mp3',
-    video: RestServer + '/videos/' + Preflanguage + '-' + $scope.barcode[0].id + '.ogv'
+    video: RestServer + '/videos/' + Preflanguage + '-' + $scope.barcode[0].id + '.mp4'
   };
 })
 
@@ -155,7 +155,8 @@ angular.module('starter.controllers', ['ngCordova','ui.router'])
   }
 })
 
-.controller('SetupCtrl', function($state, $scope, $rootScope, $ionicHistory, $translate, $ionicPopup, $ionicPlatform, $ionicLoading, $cordovaBarcodeScanner, $http) {
+.controller('SetupCtrl', function($state, $scope, $rootScope, $ionicHistory, $ionicModal, $timeout,
+  $translate, $ionicPopup, $ionicPlatform, $ionicLoading, $cordovaBarcodeScanner, $http) {
   $ionicHistory.currentView($ionicHistory.backView());
   var RestServer = PersistData.get('RestServer');
   var DevSecret = PersistData.get('DevSecret');
@@ -165,6 +166,22 @@ angular.module('starter.controllers', ['ngCordova','ui.router'])
   } else {
     $scope.translations = translations['en'];
   }
+
+  $ionicModal.fromTemplateUrl('templates/modal-register.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(modal) {
+    $scope.modal = modal;
+  });
+  $scope.openModal = function() {
+    $scope.modal.show();
+  }
+  $scope.closeModal = function() {
+    $scope.modal.hide();
+  }
+  $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+  });
   /*
   Until now, we don't trust in any server. It's not safe to show images,
   audios or texts from a remote server. We need to take care what show to the user!
@@ -319,24 +336,6 @@ angular.module('starter.controllers', ['ngCordova','ui.router'])
       })
     })
   }
-})
-
-.controller('RegisterModalCtrl', function($scope, $ionicModal) {
-  $ionicModal.fromTemplateUrl('templates/modal-register.html', {
-    scope: $scope,
-    animation: 'slide-in-up'
-  }).then(function(modal) {
-    $scope.modal = modal
-  })
-  $scope.openModal = function() {
-    $scope.modal.show();
-  }
-  $scope.closeModal = function() {
-    $scope.modal.hide();
-  }
-  $scope.$on('$destroy', function() {
-    $scope.modal.remove();
-  });
 })
 
 .controller('ExitCtrl', function($scope, $ionicHistory) {

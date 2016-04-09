@@ -1,14 +1,38 @@
 <ion-modal-view>
   <ion-header-bar align-title="center" class="bar-positive">
-    <h1 class="title">Title!</h1>
+    <h1 class="title">Meus dados pessoais</h1>
   </ion-header-bar>
   <ion-content class="padding">
-    Texto do modal
-  </ion-content>
-  <ion-footer-bar align-title="left" class="bar-stable">
-    <div class="button-bar">
-      <button class="button button-balanced">OK</button>
-      <button class="button button-assertive">Cancel</button>
-    </div>
+    <form name="myForm" novalidate>
+      <div class="list">
+        <label class="item item-input">
+          <input type="text" name="firstname" ng-model="firstname" placeholder="First Name" ng-minlength="2" required>
+        </label>
+        <p ng-show="myForm.firstname.$error.required">* First Name is required</p>
+        <p ng-show="myForm.firstname.$error.minlength">* First Name must be longer than 2 characters</p>
+        <label class="item item-input">
+          <input type="text" name="lastname" ng-model="lastname" placeholder="Last Name" ng-minlength="2" required>
+        </label>
+        <p ng-show="myForm.lastname.$error.required">* Last Name is required</p>
+        <p ng-show="myForm.lastname.$error.minlength">* Last Name must be longer than 2 characters</p>
+        <label class="item item-input">
+          <input type="email" name="email" ng-model="email" placeholder="E-mail Address" ng-minlength="10" required>
+        </label>
+        <p ng-show="myForm.email.$error.required">* E-mail Address is required</p>
+        <p ng-show="myForm.email.$error.minlength">* E-mail Address must be longer than 10 characters</p>
+        <label class="item item-input">
+          <input type="text" name="cpf" ng-model="cpf" placeholder="CPF" ng-minlength="11" ng-maxlength="11" required>
+        </label>
+        <p ng-show="myForm.cpf.$error.required">* CPF Name is required</p>
+        <p ng-show="myForm.cpf.$error.minlength">* CPF Name must have exactly 11 characters</p>
+        <p ng-show="myForm.cpf.$error.maxlength">* CPF Name must have exactly 11 characters</p>
+      </div>
+    </ion-content>
+    <ion-footer-bar align-title="left" class="bar-stable">
+      <div class="button-bar">
+        <button class="button button-balanced" ng-disabled="myForm.$invalid" ng-click="submit(username)">OK</button>
+        <button class="button button-assertive" ng-click="closeModal();">Cancel</button>
+      </div>
+  </form>
   </ion-footer-bar>
 </ion-modal-view>

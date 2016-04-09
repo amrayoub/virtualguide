@@ -38,10 +38,16 @@
               </script>
             </div>
             <div ng-if="result.video">
-              <video id="video" width="320" height="240" controls="controls" preload="metadata">
+              <video id="video" autobuffer height="240" width="360" controls="controls">
                 <source ng-src="{{trustSrc(media.video)}}">
                 Your device does not support the video tag.
               </video>
+              <script type="text/javascript">
+                var video = document.getElementById('video');
+                video.addEventListener('click',function(){
+                  video.play();
+                },false);
+              </script>
             </div>
             <!-- Media block -->
           </div>

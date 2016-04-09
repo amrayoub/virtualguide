@@ -37,7 +37,7 @@ config = ConfigParser.SafeConfigParser({
 config.read('./virtrest.cfg')
 
 virtualrest = Flask(__name__)
-    
+
 MONGO_HOST = config.get('MONGODB', 'host')
 MONGO_PORT = int(config.get('MONGODB', 'port'))
 MONGO_DBNAME = config.get('MONGODB', 'dbname')

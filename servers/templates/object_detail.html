@@ -106,7 +106,7 @@
               <label class="checkbox-inline">
                 <input type="checkbox" name="translation[{{i}}]" value="removevideo">Remove video
               </label><br>
-              <video controls="controls" preload="metadata" src="{{ url_for('get_file', rtype='videos', filename=translation.isocode + '-' + object.id + '.ogv') }}">
+              <video controls="controls" preload="metadata" src="{{ url_for('get_file', rtype='videos', filename=translation.isocode + '-' + object.id + '.mp4') }}">
                 Your browser doesn't support video TAG
               </video>
               {% else %}

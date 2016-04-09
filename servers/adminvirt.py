@@ -41,7 +41,7 @@ config.read('./adminvirt.cfg')
 mediatypes = {
     'images': {'db': 'images', 'ext': '.png'},
     'thumbs': {'db': 'thumbs', 'ext': '.png'},
-    'videos': {'db': 'videos', 'ext': '.ogv'},
+    'videos': {'db': 'videos', 'ext': '.mp4'},
     'audios': {'db': 'audios', 'ext': '.mp3'}
 }
 
@@ -228,7 +228,7 @@ def del_obj_media(objid, isocode, mediatype):
     return True
 
 def set_obj_media(objid, isocode, mediatype, file):
-    if (file.filename[-4:] not in ['.mp3','.ogv']):
+    if (file.filename[-4:] not in ['.mp3','.mp4']):
         return False
     if (mediatype not in ['audios','videos']):
         return False
