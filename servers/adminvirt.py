@@ -478,7 +478,7 @@ def change_language():
         )
     return redirect(url_for('languages'))
 
-@virtualrest.route('/del_languages/<_id>',methods=['GET'])
+@virtualrest.route('/del_language/<_id>',methods=['GET'])
 def del_language(_id):
     if (not session.get('logged_in')):
         return redirect(url_for('login'))
@@ -833,12 +833,11 @@ if __name__ == '__main__':
     localaddress = config.get('MAIN', 'local_address')
     localport = config.getint('MAIN', 'local_port')
     if (config.getboolean('MAIN', 'debug') ):
-        virtualrest.run(host=localaddress,port=localport, debug=True)
+        virtualrest.run(host=localaddress, port=8080, debug=True)
     else:
         if (config.getboolean('MAIN', 'use_ssl')):
-            cert_file = config.get('MAIN', 'ssl_cert_file')
             key_file = config.get('MAIN', 'ssl_key_file')
-            localport = config.getint('MAIN', 'ssl_port')
+            cert_file = config.get('MAIN', 'ssl_cert_file')
             http_server = WSGIServer((localaddress, localport), virtualrest, keyfile=key_file, certfile=cert_file)
         else:
             http_server = WSGIServer((localaddress, localport), virtualrest)

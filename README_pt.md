@@ -35,6 +35,7 @@ A idéia central é utilizar um aplicativo único para qualquer exposição, sej
  - PyMongo
  - ColorThief
  - PyQRCode
+ - Um conjunto de icoes de bandeiras (indico este: http://www.icondrawer.com/flag-icons.php)
 
 ### Como ele funciona
 

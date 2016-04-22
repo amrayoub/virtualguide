@@ -32,7 +32,7 @@
         <input id="uploadImage" placeholder="Choose File" disabled="disabled">
         <div class="fileUpload btn btn-sm btn-primary">
           <span>Browse</span>
-          <input id="uploadImageBtn" type="file" name="imagefile" class="upload">
+          <input id="uploadImageBtn" type="file" name="imagefile" class="upload" accept="image/*">
         </div>
       </div>
       <div class="col-md-3 col-md-offset-1">
@@ -87,11 +87,11 @@
               {% else %}
               <span class="label label-danger">No</span><br>
               {% endif %}
-              <!-- Upload Image -->
+              <!-- Upload Audio -->
               <input id="uploadAudio_{{translation.isocode}}" placeholder="Choose File" disabled="disabled">
               <div class="fileUpload btn btn-sm btn-primary">
                 <span>Browse</span>
-                <input id="uploadAudio_{{translation.isocode}}_Btn" type="file" name="audiofile_{{translation.isocode}}" class="upload">
+                <input id="uploadAudio_{{translation.isocode}}_Btn" type="file" name="audiofile_{{translation.isocode}}" class="upload" accept="audio/mp3">
               </div>
               <script type="text/javascript">
               document.getElementById("uploadAudio_{{translation.isocode}}_Btn").onchange = function () {
@@ -112,11 +112,11 @@
               {% else %}
               <span class="label label-danger">No</span><br>
               {% endif %}
-              <!-- Upload Image -->
+              <!-- Upload Video -->
               <input id="uploadvideo_{{translation.isocode}}" placeholder="Choose File" disabled="disabled">
               <div class="fileUpload btn btn-sm btn-primary">
                 <span>Browse</span>
-                <input id="uploadvideo_{{translation.isocode}}_Btn" type="file" name="videofile_{{translation.isocode}}" class="upload">
+                <input id="uploadvideo_{{translation.isocode}}_Btn" type="file" name="videofile_{{translation.isocode}}" class="upload" accept="video/mp4">
               </div>
               <script type="text/javascript">
               document.getElementById("uploadvideo_{{translation.isocode}}_Btn").onchange = function () {

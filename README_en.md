@@ -15,6 +15,7 @@ Yes, it's an application guide with batteries included!
  - PyMongo
  - ColorThief
  - PyQRCode
+ - A flag  iconset (I recommend this: http://www.icondrawer.com/flag-icons.php)
 
 First, you need to provide an Wi-Fi connection to your costumers. Put some hotspots around the area to avoid “black holes” (points without or with weak signal).
 These hotspots need to be connected in the same network as your Rest Server (virtrest.py).
