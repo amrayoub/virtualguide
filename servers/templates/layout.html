@@ -66,14 +66,22 @@
         {% if 'all' in session['rights'] or 'objects' in session['rights'] %}
         <li><a href="/objects">Objects</a></li>
         {% endif %}
+      </ul>
 
+      <ul class="nav navbar-nav navbar-right" style="padding-right: 30px;">
         {% if 'all' in session['rights'] or 'users' in session['rights'] %}
-        <li><a href="/users">Users</a></li>
-        <li><a href="/roles">Roles</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+            role="button" aria-haspopup="true" aria-expanded="false">
+            User Management <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="/users">Users</a></li>
+            <li><a href="/roles">Roles</a></li>
+          </ul>
+        </li>
         {% endif %}
 
-      </ul>
-      <ul class="nav navbar-nav navbar-right" style="padding-right: 30px;">
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown"
             role="button" aria-haspopup="true" aria-expanded="false">
