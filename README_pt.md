@@ -59,7 +59,7 @@ A idéia central é utilizar um aplicativo único para qualquer exposição, sej
 ### Screenshots
 
 #### Interface Mobile
-Mobile Application: ![Mobile App](https://play.google.com/store/apps/details?id=com.ionicframework.virtualguide960037 "Android Version")
+Mobile Application: [Google Play](https://play.google.com/store/apps/details?id=com.ionicframework.virtualguide960037)
 
 #### Interface Web
 ![Login](https://raw.githubusercontent.com/allangood/virtualguide/master/site_media/AdminVirt_01.png "Login")
