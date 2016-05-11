@@ -62,10 +62,10 @@ A idéia central é utilizar um aplicativo único para qualquer exposição, sej
 Mobile Application: ![Mobile App](https://play.google.com/store/apps/details?id=com.ionicframework.virtualguide960037 "Android Version")
 
 #### Interface Web
-![Login](https://raw.githubusercontent.com/allangood/virtualguide/master/site_media/AdminVirt_01 "Login")
-![Inicio](https://raw.githubusercontent.com/allangood/virtualguide/master/site_media/AdminVirt_02 "Inicio")
-![Linguas](https://raw.githubusercontent.com/allangood/virtualguide/master/site_media/AdminVirt_04 "Linguas")
-![Configuracoes](https://raw.githubusercontent.com/allangood/virtualguide/master/site_media/AdminVirt_05 "Configuracoes")
+![Login](https://raw.githubusercontent.com/allangood/virtualguide/master/site_media/AdminVirt_01.png "Login")
+![Inicio](https://raw.githubusercontent.com/allangood/virtualguide/master/site_media/AdminVirt_02.png "Inicio")
+![Linguas](https://raw.githubusercontent.com/allangood/virtualguide/master/site_media/AdminVirt_04.png "Linguas")
+![Configuracoes](https://raw.githubusercontent.com/allangood/virtualguide/master/site_media/AdminVirt_05.png "Configuracoes")
 
 ### FAQ
 **Por que utilizar um banco NoSQL?**
